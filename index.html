@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RESPAWN — Newsletter Gamer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Syne+Mono&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080a0f;
+    --bg2: #0d1117;
+    --surface: #111520;
+    --surface2: #161c2a;
+    --neon: #00f5a0;
+    --neon2: #00d4f5;
+    --fire: #ff3c00;
+    --gold: #f5c842;
+    --text: #e8edf5;
+    --muted: #5a6478;
+    --border: rgba(0,245,160,0.15);
+    --scanline: rgba(0,245,160,0.03);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--neon);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    transition: transform 0.1s;
+    mix-blend-mode: screen;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid var(--neon);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9998;
+    transition: all 0.15s ease;
+    opacity: 0.5;
+  }
+
+  /* SCANLINES OVERLAY */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      var(--scanline) 0px,
+      var(--scanline) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+    pointer-events: none; z-index: 1000;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8,10,15,0.85);
+    backdrop-filter: blur(16px);
+  }
+
+  .nav-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900; font-size: 28px;
+    letter-spacing: 4px;
+    color: var(--neon);
+    text-shadow: 0 0 20px var(--neon), 0 0 60px rgba(0,245,160,0.3);
+  }
+
+  .nav-links {
+    display: flex; gap: 32px; list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
+    transition: color 0.2s;
+    font-weight: 700;
+  }
+
+  .nav-links a:hover { color: var(--neon); }
+
+  .nav-cta {
+    background: var(--neon);
+    color: var(--bg) !important;
+    padding: 8px 20px;
+    border-radius: 2px;
+    font-size: 12px !important;
+    letter-spacing: 2px !important;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: flex-start;
+    padding: 120px 48px 80px;
+    position: relative; overflow: hidden;
+  }
+
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,160,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,160,0.04) 1px, transparent 1px);
+    background-size: 64px 64px;
+    animation: grid-drift 20s linear infinite;
+  }
+
+  @keyframes grid-drift {
+    from { background-position: 0 0; }
+    to { background-position: 64px 64px; }
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: 20%; right: -10%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,245,160,0.08) 0%, transparent 70%);
+    animation: pulse-glow 4s ease-in-out infinite;
+  }
+
+  .hero-glow2 {
+    position: absolute;
+    bottom: 10%; left: -5%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(0,212,245,0.06) 0%, transparent 70%);
+    animation: pulse-glow 6s ease-in-out infinite reverse;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
+  }
+
+  .hero-tag {
+    font-family: 'Syne Mono', monospace;
+    font-size: 11px; letter-spacing: 4px;
+    color: var(--neon); text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .hero-tag::before {
+    content: '';
+    width: 40px; height: 1px;
+    background: var(--neon);
+  }
+
+  .hero-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: clamp(72px, 10vw, 148px);
+    line-height: 0.88;
+    letter-spacing: -2px;
+    text-transform: uppercase;
+    position: relative; z-index: 1;
+    animation: title-in 0.8s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  @keyframes title-in {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-title .line2 {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+  }
+
+  .hero-title .accent { color: var(--neon); }
+
+  .hero-sub {
+    margin-top: 32px;
+    max-width: 500px;
+    font-size: 16px; line-height: 1.7;
+    color: var(--muted);
+    animation: title-in 0.8s 0.15s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  .hero-stats {
+    display: flex; gap: 48px; margin-top: 48px;
+    animation: title-in 0.8s 0.25s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  .stat-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 42px; font-weight: 900;
+    color: var(--neon);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px; letter-spacing: 2px;
+    color: var(--muted); text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .hero-subscribe {
+    margin-top: 48px;
+    display: flex; gap: 0;
+    animation: title-in 0.8s 0.35s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  .hero-subscribe input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-right: none;
+    color: var(--text);
+    padding: 14px 20px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px; width: 300px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .hero-subscribe input::placeholder { color: var(--muted); }
+  .hero-subscribe input:focus { border-color: var(--neon); }
+
+  .hero-subscribe button {
+    background: var(--neon);
+    color: var(--bg);
+    border: none;
+    padding: 14px 28px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .hero-subscribe button:hover {
+    background: var(--neon2);
+    box-shadow: 0 0 30px rgba(0,245,160,0.5);
+  }
+
+  /* TICKER */
+  .ticker {
+    background: var(--neon);
+    color: var(--bg);
+    padding: 10px 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .ticker-inner {
+    display: inline-flex; gap: 0;
+    animation: ticker-scroll 30s linear infinite;
+  }
+
+  .ticker-item {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700; font-size: 13px;
+    letter-spacing: 3px; text-transform: uppercase;
+    padding: 0 32px;
+  }
+
+  .ticker-sep {
+    color: rgba(8,10,15,0.4);
+    padding: 0 8px;
+  }
+
+  @keyframes ticker-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: 'Syne Mono', monospace;
+    font-size: 10px; letter-spacing: 4px;
+    color: var(--neon); text-transform: uppercase;
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 40px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  /* FEATURED */
+  .featured {
+    padding: 80px 48px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .featured-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 2px;
+  }
+
+  .card {
+    background: var(--surface);
+    position: relative; overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+
+  .card::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(0,245,160,0.05) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .card:hover::after { opacity: 1; }
+  .card:hover { transform: translateY(-2px); }
+
+  .card-main {
+    grid-row: 1 / 3;
+    min-height: 460px;
+    display: flex; flex-direction: column;
+    justify-content: flex-end;
+    padding: 40px;
+    background:
+      linear-gradient(0deg, rgba(8,10,15,0.95) 0%, rgba(8,10,15,0.3) 100%),
+      url('https://picsum.photos/seed/game1/900/600') center/cover;
+  }
+
+  .card-sm {
+    min-height: 220px;
+    display: flex; flex-direction: column;
+    justify-content: flex-end;
+    padding: 24px;
+    background:
+      linear-gradient(0deg, rgba(8,10,15,0.95) 0%, rgba(8,10,15,0.2) 100%),
+      url('https://picsum.photos/seed/game2/600/400') center/cover;
+  }
+
+  .card-sm2 {
+    background-image:
+      linear-gradient(0deg, rgba(8,10,15,0.95) 0%, rgba(8,10,15,0.2) 100%),
+      url('https://picsum.photos/seed/game3/600/400') center/cover;
+  }
+
+  .card-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase;
+    padding: 4px 10px;
+    margin-bottom: 16px;
+    display: inline-block;
+    border-radius: 1px;
+  }
+
+  .badge-hot { background: var(--fire); color: #fff; }
+  .badge-new { background: var(--neon); color: var(--bg); }
+  .badge-review { background: var(--gold); color: var(--bg); }
+  .badge-guide { background: var(--neon2); color: var(--bg); }
+  .badge-esports { background: #8b5cf6; color: #fff; }
+
+  .card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900; text-transform: uppercase;
+    line-height: 1.05; letter-spacing: -0.5px;
+  }
+
+  .card-main .card-title { font-size: clamp(28px, 3vw, 42px); }
+  .card-sm .card-title { font-size: 22px; }
+
+  .card-meta {
+    font-size: 11px; letter-spacing: 2px;
+    color: var(--muted); text-transform: uppercase;
+    margin-top: 10px;
+    font-family: 'Syne Mono', monospace;
+  }
+
+  /* NEWS GRID */
+  .news-section {
+    padding: 80px 48px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .news-card {
+    background: var(--surface);
+    padding: 28px;
+    position: relative; overflow: hidden;
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+
+  .news-card:hover { background: var(--surface2); }
+
+  .news-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 3px; height: 0;
+    background: var(--neon);
+    transition: height 0.3s;
+  }
+
+  .news-card:hover::before { height: 100%; }
+
+  .news-img {
+    width: 100%; height: 160px;
+    object-fit: cover; margin-bottom: 20px;
+    filter: grayscale(20%);
+    transition: filter 0.3s;
+  }
+
+  .news-card:hover .news-img { filter: grayscale(0%); }
+
+  .news-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px; font-weight: 700;
+    text-transform: uppercase;
+    line-height: 1.15; margin-bottom: 12px;
+  }
+
+  .news-excerpt {
+    font-size: 13px; line-height: 1.7;
+    color: var(--muted);
+  }
+
+  .news-footer {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .news-author {
+    font-size: 11px; letter-spacing: 1px;
+    color: var(--muted); text-transform: uppercase;
+    font-family: 'Syne Mono', monospace;
+  }
+
+  .news-read {
+    font-size: 11px; letter-spacing: 2px;
+    color: var(--neon); text-transform: uppercase;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+  }
+
+  /* REVIEW SECTION */
+  .review-section {
+    padding: 80px 48px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .review-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+  }
+
+  .review-card {
+    background: var(--surface);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+
+  .review-card:hover { transform: scale(1.02); z-index: 1; }
+
+  .review-thumb {
+    width: 100%; height: 200px;
+    object-fit: cover;
+    display: block;
+    filter: saturate(0.8);
+    transition: filter 0.3s;
+  }
+
+  .review-card:hover .review-thumb { filter: saturate(1.2); }
+
+  .review-body { padding: 20px; }
+
+  .review-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px; font-weight: 700;
+    text-transform: uppercase; margin: 8px 0;
+  }
+
+  .review-platform {
+    font-size: 10px; letter-spacing: 2px;
+    color: var(--muted); text-transform: uppercase;
+    font-family: 'Syne Mono', monospace;
+  }
+
+  .score-bar {
+    margin-top: 14px;
+    background: var(--bg);
+    height: 4px; border-radius: 0;
+    overflow: hidden;
+  }
+
+  .score-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--neon), var(--neon2));
+    border-radius: 0;
+    transition: width 1s ease;
+  }
+
+  .score-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 36px; font-weight: 900;
+    color: var(--neon); margin-top: 8px;
+    line-height: 1;
+  }
+
+  .score-label {
+    font-size: 10px; letter-spacing: 2px;
+    color: var(--muted); text-transform: uppercase;
+    font-family: 'Syne Mono', monospace;
+  }
+
+  /* ESPORTS */
+  .esports-section {
+    padding: 80px 48px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .esports-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+
+  .match-card {
+    background: var(--surface);
+    padding: 28px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+
+  .match-card:hover { background: var(--surface2); }
+
+  .team {
+    display: flex; align-items: center;
+    gap: 14px; flex: 1;
+  }
+
+  .team-right { flex-direction: row-reverse; }
+
+  .team-logo {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    border: 1px solid var(--border);
+  }
+
+  .team-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  .team-record {
+    font-size: 11px; color: var(--muted);
+    font-family: 'Syne Mono', monospace;
+  }
+
+  .match-center {
+    text-align: center; padding: 0 24px;
+  }
+
+  .match-vs {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px; font-weight: 900;
+    color: var(--muted);
+  }
+
+  .match-score {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 36px; font-weight: 900;
+    color: var(--neon);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .match-score span { color: var(--muted); font-size: 20px; }
+
+  .match-game {
+    font-size: 10px; letter-spacing: 2px;
+    color: var(--muted); text-transform: uppercase;
+    font-family: 'Syne Mono', monospace;
+    margin-top: 4px;
+  }
+
+  .live-badge {
+    background: var(--fire);
+    color: #fff;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    padding: 2px 8px; border-radius: 1px;
+    animation: blink 1s infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* NEWSLETTER CTA */
+  .newsletter-cta {
+    padding: 100px 48px;
+    text-align: center;
+    position: relative; overflow: hidden;
+    background: var(--bg2);
+  }
+
+  .cta-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 50%, rgba(0,245,160,0.07) 0%, transparent 70%);
+  }
+
+  .cta-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .cta-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900; font-size: clamp(48px, 7vw, 96px);
+    text-transform: uppercase; line-height: 0.9;
+    position: relative; z-index: 1;
+  }
+
+  .cta-title .highlight {
+    color: var(--neon);
+    text-shadow: 0 0 40px rgba(0,245,160,0.5);
+  }
+
+  .cta-sub {
+    font-size: 16px; color: var(--muted);
+    max-width: 480px; margin: 24px auto;
+    line-height: 1.7; position: relative; z-index: 1;
+  }
+
+  .cta-form {
+    display: flex; justify-content: center;
+    gap: 0; max-width: 480px; margin: 40px auto 0;
+    position: relative; z-index: 1;
+  }
+
+  .cta-form input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-right: none;
+    color: var(--text);
+    padding: 14px 20px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px; flex: 1;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .cta-form input:focus { border-color: var(--neon); }
+  .cta-form input::placeholder { color: var(--muted); }
+
+  .cta-form button {
+    background: var(--neon);
+    color: var(--bg);
+    border: none;
+    padding: 14px 32px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .cta-form button:hover {
+    background: var(--neon2);
+    box-shadow: 0 0 40px rgba(0,245,160,0.5);
+  }
+
+  .cta-perks {
+    display: flex; justify-content: center;
+    gap: 32px; margin-top: 32px;
+    position: relative; z-index: 1;
+  }
+
+  .perk {
+    font-size: 12px; letter-spacing: 1px;
+    color: var(--muted); text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Syne Mono', monospace;
+  }
+
+  .perk::before {
+    content: '✓';
+    color: var(--neon); font-weight: 900;
+  }
+
+  /* FOOTER */
+  footer {
+    padding: 48px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--bg);
+  }
+
+  .footer-logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900; font-size: 24px;
+    letter-spacing: 4px; color: var(--neon);
+    text-shadow: 0 0 20px rgba(0,245,160,0.3);
+  }
+
+  .footer-links {
+    display: flex; gap: 32px; list-style: none;
+  }
+
+  .footer-links a {
+    color: var(--muted); text-decoration: none;
+    font-size: 12px; letter-spacing: 2px;
+    text-transform: uppercase; font-weight: 700;
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover { color: var(--neon); }
+
+  .footer-copy {
+    font-size: 11px; color: var(--muted);
+    font-family: 'Syne Mono', monospace;
+  }
+
+  /* SCROLL ANIMATIONS */
+  .reveal {
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1; transform: translateY(0);
+  }
+
+  /* GLITCH EFFECT */
+  .glitch {
+    position: relative;
+  }
+
+  .glitch::before, .glitch::after {
+    content: attr(data-text);
+    position: absolute; top: 0; left: 0;
+    width: 100%; height: 100%;
+    opacity: 0;
+  }
+
+  .glitch:hover::before {
+    opacity: 0.6; color: var(--fire);
+    clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+    transform: translateX(-3px);
+    animation: glitch1 0.3s ease;
+  }
+
+  .glitch:hover::after {
+    opacity: 0.6; color: var(--neon2);
+    clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
+    transform: translateX(3px);
+    animation: glitch2 0.3s ease;
+  }
+
+  @keyframes glitch1 {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+    100% { transform: translateX(0); }
+  }
+
+  @keyframes glitch2 {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(4px); }
+    75% { transform: translateX(-4px); }
+    100% { transform: translateX(0); }
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+    .hero { padding: 100px 24px 60px; }
+    .hero-subscribe { flex-direction: column; }
+    .hero-subscribe input { width: 100%; }
+    .hero-stats { gap: 24px; }
+    .featured { padding: 60px 24px; }
+    .featured-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+    .card-main { grid-row: auto; min-height: 320px; }
+    .news-section, .review-section, .esports-section { padding: 60px 24px; }
+    .news-grid { grid-template-columns: 1fr; }
+    .review-grid { grid-template-columns: 1fr 1fr; }
+    .esports-grid { grid-template-columns: 1fr; }
+    .newsletter-cta { padding: 60px 24px; }
+    .cta-form { flex-direction: column; }
+    .cta-form input { border-right: 1px solid var(--border); }
+    .cta-perks { flex-wrap: wrap; gap: 16px; }
+    footer { flex-direction: column; gap: 24px; text-align: center; }
+    .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">RESPAWN</div>
+  <ul class="nav-links">
+    <li><a href="#noticias">Notícias</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#esports">Esports</a></li>
+    <li><a href="#guias">Guias</a></li>
+    <li><a href="#newsletter" class="nav-cta">Assinar</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <div class="hero-tag">Edição #042 — Maio 2026</div>
+
+  <h1 class="hero-title glitch" data-text="RESPAWN">
+    RES<span class="accent">P</span>AWN<br>
+    <span class="line2">NEWSLETTER</span>
+  </h1>
+
+  <p class="hero-sub">
+    O melhor do universo gamer direto na sua caixa de entrada.
+    Reviews, notícias, esports e análises toda semana — sem enrolação.
+  </p>
+
+  <div class="hero-stats">
+    <div>
+      <div class="stat-num">48K</div>
+      <div class="stat-label">Inscritos</div>
+    </div>
+    <div>
+      <div class="stat-num">7+</div>
+      <div class="stat-label">Anos Online</div>
+    </div>
+    <div>
+      <div class="stat-num">100%</div>
+      <div class="stat-label">Sem Spoilers</div>
+    </div>
+  </div>
+
+  <div class="hero-subscribe">
+    <input type="email" placeholder="seu@email.com">
+    <button>Quero Receber</button>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item">⚡ DOOM: The Dark Ages — Review Completo</span>
+    <span class="ticker-item">🏆 CBLOL — Playoffs Começam Amanhã</span>
+    <span class="ticker-item">🎮 GTA VI — Data Confirmada Para Setembro</span>
+    <span class="ticker-item">🔥 Elden Ring DLC — 9.5/10 Nota Final</span>
+    <span class="ticker-item">🚀 Xbox Game Pass — 12 Jogos Novos em Junho</span>
+    <span class="ticker-item">💥 Hollow Knight 2 — Trailer Revelado na Geoff</span>
+    <!-- duplicate for seamless loop -->
+    <span class="ticker-item">⚡ DOOM: The Dark Ages — Review Completo</span>
+    <span class="ticker-item">🏆 CBLOL — Playoffs Começam Amanhã</span>
+    <span class="ticker-item">🎮 GTA VI — Data Confirmada Para Setembro</span>
+    <span class="ticker-item">🔥 Elden Ring DLC — 9.5/10 Nota Final</span>
+    <span class="ticker-item">🚀 Xbox Game Pass — 12 Jogos Novos em Junho</span>
+    <span class="ticker-item">💥 Hollow Knight 2 — Trailer Revelado na Geoff</span>
+  </div>
+</div>
+
+<!-- FEATURED -->
+<section class="featured" id="noticias">
+  <div class="section-label">Destaques da Semana</div>
+  <div class="featured-grid">
+    <div class="card card-main reveal">
+      <span class="card-badge badge-hot">🔥 Em Alta</span>
+      <h2 class="card-title">GTA VI finalmente tem data: prepare seu PC e suas economias</h2>
+      <p class="card-meta">Há 2 horas · Por Rafael Mota · 8 min de leitura</p>
+    </div>
+    <div class="card card-sm reveal" style="transition-delay:0.1s">
+      <span class="card-badge badge-new">Novo</span>
+      <h3 class="card-title">Xbox Series X Pro é real e chega em 2027</h3>
+      <p class="card-meta">Há 4 horas · Hardware</p>
+    </div>
+    <div class="card card-sm card-sm2 reveal" style="transition-delay:0.2s">
+      <span class="card-badge badge-esports">Esports</span>
+      <h3 class="card-title">LOUD vence a paiN e vai às finais do CBLOL</h3>
+      <p class="card-meta">Ontem · League of Legends</p>
+    </div>
+  </div>
+</section>
+
+<!-- NEWS -->
+<section class="news-section">
+  <div class="section-label">Últimas Notícias</div>
+  <div class="news-grid">
+
+    <div class="news-card reveal">
+      <img class="news-img" src="https://picsum.photos/seed/n1/600/300" alt="">
+      <span class="card-badge badge-guide">Guia</span>
+      <h3 class="news-title">Como dominar o Ranked no Valorant sem enlouquecer</h3>
+      <p class="news-excerpt">Dez dicas testadas por jogadores Radiante que vão transformar sua mentalidade e sua mecânica de uma vez por todas.</p>
+      <div class="news-footer">
+        <span class="news-author">Ana Lima · 12 mai</span>
+        <span class="news-read">Ler →</span>
+      </div>
+    </div>
+
+    <div class="news-card reveal" style="transition-delay:0.1s">
+      <img class="news-img" src="https://picsum.photos/seed/n2/600/300" alt="">
+      <span class="card-badge badge-review">Review</span>
+      <h3 class="news-title">Hades II: por que esse jogo está redefinindo o roguelite</h3>
+      <p class="news-excerpt">A Supergiant Games fez de novo. Uma sequência que supera o original em quase todos os aspectos — e ainda está em acesso antecipado.</p>
+      <div class="news-footer">
+        <span class="news-author">Carlos Neto · 10 mai</span>
+        <span class="news-read">Ler →</span>
+      </div>
+    </div>
+
+    <div class="news-card reveal" style="transition-delay:0.2s">
+      <img class="news-img" src="https://picsum.photos/seed/n3/600/300" alt="">
+      <span class="card-badge badge-hot">Notícia</span>
+      <h3 class="news-title">PlayStation 6 terá retrocompatibilidade total com PS4 e PS5</h3>
+      <p class="news-excerpt">Em carta aberta à comunidade, a Sony confirma que toda a biblioteca das gerações anteriores estará disponível no novo console.</p>
+      <div class="news-footer">
+        <span class="news-author">Juliana Félix · 8 mai</span>
+        <span class="news-read">Ler →</span>
+      </div>
+    </div>
+
+    <div class="news-card reveal" style="transition-delay:0s">
+      <img class="news-img" src="https://picsum.photos/seed/n4/600/300" alt="">
+      <span class="card-badge badge-new">Lançamento</span>
+      <h3 class="news-title">Hollow Knight: Silksong — tudo que sabemos sobre o jogo mais esperado</h3>
+      <p class="news-excerpt">Depois de anos de espera e memes, o game finalmente foi revelado com data e parece incrível.</p>
+      <div class="news-footer">
+        <span class="news-author">Bruno Alves · 7 mai</span>
+        <span class="news-read">Ler →</span>
+      </div>
+    </div>
+
+    <div class="news-card reveal" style="transition-delay:0.1s">
+      <img class="news-img" src="https://picsum.photos/seed/n5/600/300" alt="">
+      <span class="card-badge badge-guide">Análise</span>
+      <h3 class="news-title">Otimize seu setup gamer sem gastar uma fortuna em 2026</h3>
+      <p class="news-excerpt">Monitor, teclado, headset, cadeira — montamos o guia definitivo para cada faixa de orçamento disponível no mercado brasileiro.</p>
+      <div class="news-footer">
+        <span class="news-author">Mariana Costa · 5 mai</span>
+        <span class="news-read">Ler →</span>
+      </div>
+    </div>
+
+    <div class="news-card reveal" style="transition-delay:0.2s">
+      <img class="news-img" src="https://picsum.photos/seed/n6/600/300" alt="">
+      <span class="card-badge badge-esports">Esports</span>
+      <h3 class="news-title">FURIA chega às quartas do Major de CS2 e emociona o Brasil</h3>
+      <p class="news-excerpt">O time brasileiro eliminou a Natus Vincere em um confronto épico de cinco mapas que durou quase três horas.</p>
+      <div class="news-footer">
+        <span class="news-author">Pedro Lins · 3 mai</span>
+        <span class="news-read">Ler →</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section class="review-section" id="reviews">
+  <div class="section-label">Reviews Recentes</div>
+  <div class="review-grid">
+
+    <div class="review-card reveal">
+      <img class="review-thumb" src="https://picsum.photos/seed/r1/400/250" alt="">
+      <div class="review-body">
+        <span class="card-badge badge-review">Review</span>
+        <h3 class="review-title">Elden Ring: Shadow of the Erdtree</h3>
+        <div class="review-platform">PC · PS5 · Xbox</div>
+        <div class="score-bar"><div class="score-fill" style="width:95%"></div></div>
+        <div class="score-num">9.5</div>
+        <div class="score-label">/ 10 — Obra Prima</div>
+      </div>
+    </div>
+
+    <div class="review-card reveal" style="transition-delay:0.1s">
+      <img class="review-thumb" src="https://picsum.photos/seed/r2/400/250" alt="">
+      <div class="review-body">
+        <span class="card-badge badge-review">Review</span>
+        <h3 class="review-title">Hades II (Early Access)</h3>
+        <div class="review-platform">PC</div>
+        <div class="score-bar"><div class="score-fill" style="width:90%"></div></div>
+        <div class="score-num">9.0</div>
+        <div class="score-label">/ 10 — Excelente</div>
+      </div>
+    </div>
+
+    <div class="review-card reveal" style="transition-delay:0.2s">
+      <img class="review-thumb" src="https://picsum.photos/seed/r3/400/250" alt="">
+      <div class="review-body">
+        <span class="card-badge badge-review">Review</span>
+        <h3 class="review-title">DOOM: The Dark Ages</h3>
+        <div class="review-platform">PC · PS5 · Xbox</div>
+        <div class="score-bar"><div class="score-fill" style="width:88%"></div></div>
+        <div class="score-num">8.8</div>
+        <div class="score-label">/ 10 — Muito Bom</div>
+      </div>
+    </div>
+
+    <div class="review-card reveal" style="transition-delay:0.3s">
+      <img class="review-thumb" src="https://picsum.photos/seed/r4/400/250" alt="">
+      <div class="review-body">
+        <span class="card-badge badge-review">Review</span>
+        <h3 class="review-title">Star Wars Outlaws</h3>
+        <div class="review-platform">PC · PS5 · Xbox</div>
+        <div class="score-bar"><div class="score-fill" style="width:72%"></div></div>
+        <div class="score-num">7.2</div>
+        <div class="score-label">/ 10 — Bom</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ESPORTS -->
+<section class="esports-section" id="esports">
+  <div class="section-label">Esports ao Vivo</div>
+  <div class="esports-grid">
+
+    <div class="match-card reveal">
+      <div class="team">
+        <div class="team-logo">🔵</div>
+        <div>
+          <div class="team-name">LOUD</div>
+          <div class="team-record">14–2</div>
+        </div>
+      </div>
+      <div class="match-center">
+        <div class="live-badge">AO VIVO</div>
+        <div class="match-score">2 <span>:</span> 1</div>
+        <div class="match-game">CBLOL · Valorant</div>
+      </div>
+      <div class="team team-right">
+        <div class="team-logo">🔴</div>
+        <div style="text-align:right">
+          <div class="team-name">paiN</div>
+          <div class="team-record">11–5</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="match-card reveal" style="transition-delay:0.1s">
+      <div class="team">
+        <div class="team-logo">🟡</div>
+        <div>
+          <div class="team-name">FURIA</div>
+          <div class="team-record">12–4</div>
+        </div>
+      </div>
+      <div class="match-center">
+        <div class="live-badge">AO VIVO</div>
+        <div class="match-score">1 <span>:</span> 1</div>
+        <div class="match-game">ESL · CS2 Major</div>
+      </div>
+      <div class="team team-right">
+        <div class="team-logo">🟢</div>
+        <div style="text-align:right">
+          <div class="team-name">NaVi</div>
+          <div class="team-record">13–3</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="match-card reveal" style="transition-delay:0.2s">
+      <div class="team">
+        <div class="team-logo">⚫</div>
+        <div>
+          <div class="team-name">Liquid</div>
+          <div class="team-record">9–7</div>
+        </div>
+      </div>
+      <div class="match-center">
+        <div style="font-size:10px;letter-spacing:2px;color:var(--muted);font-family:'Syne Mono',monospace">AMANHÃ · 19H</div>
+        <div class="match-vs">VS</div>
+        <div class="match-game">VCT · Valorant</div>
+      </div>
+      <div class="team team-right">
+        <div class="team-logo">🔵</div>
+        <div style="text-align:right">
+          <div class="team-name">Sentinels</div>
+          <div class="team-record">10–6</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="match-card reveal" style="transition-delay:0.3s">
+      <div class="team">
+        <div class="team-logo">🟣</div>
+        <div>
+          <div class="team-name">G2</div>
+          <div class="team-record">15–1</div>
+        </div>
+      </div>
+      <div class="match-center">
+        <div style="font-size:10px;letter-spacing:2px;color:var(--muted);font-family:'Syne Mono',monospace">ENCERRADO</div>
+        <div class="match-score" style="color:var(--muted)">3 <span>:</span> 0</div>
+        <div class="match-game">LEC · League of Legends</div>
+      </div>
+      <div class="team team-right">
+        <div class="team-logo">⚪</div>
+        <div style="text-align:right">
+          <div class="team-name">FNC</div>
+          <div class="team-record">8–8</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- NEWSLETTER CTA -->
+<section class="newsletter-cta" id="newsletter">
+  <div class="cta-bg"></div>
+  <div class="cta-grid"></div>
+  <h2 class="cta-title reveal">
+    FIQUE POR<br>
+    <span class="highlight">DENTRO</span>
+  </h2>
+  <p class="cta-sub reveal">
+    Toda semana, o melhor do mundo gamer chega direto no seu e-mail.
+    Sem spam. Sem enrolação. Só o que importa.
+  </p>
+  <div class="cta-form reveal">
+    <input type="email" placeholder="seu@email.com">
+    <button>Assinar Agora</button>
+  </div>
+  <div class="cta-perks reveal">
+    <span class="perk">Toda sexta-feira</span>
+    <span class="perk">Gratuito para sempre</span>
+    <span class="perk">Cancele quando quiser</span>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">RESPAWN</div>
+  <ul class="footer-links">
+    <li><a href="#">Sobre</a></li>
+    <li><a href="#">Arquivo</a></li>
+    <li><a href="#">Anunciar</a></li>
+    <li><a href="#">Privacidade</a></li>
+    <li><a href="#">Contato</a></li>
+  </ul>
+  <div class="footer-copy">© 2026 Respawn Newsletter · Feito no 🇧🇷</div>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.left = mx - 6 + 'px';
+    cursor.style.top = my - 6 + 'px';
+  });
+
+  function animateRing() {
+    rx += (mx - rx - 18) * 0.12;
+    ry += (my - ry - 18) * 0.12;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  document.querySelectorAll('a, button, .card, .news-card, .review-card, .match-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform = 'scale(2)';
+      ring.style.transform = 'scale(1.5)';
+      ring.style.opacity = '0.8';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.transform = 'scale(1)';
+      ring.style.transform = 'scale(1)';
+      ring.style.opacity = '0.5';
+    });
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+
+  // Score bar animation
+  const scoreObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const fill = e.target.querySelector('.score-fill');
+        if (fill) {
+          const w = fill.style.width;
+          fill.style.width = '0';
+          setTimeout(() => fill.style.width = w, 100);
+        }
+      }
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('.review-card').forEach(c => scoreObserver.observe(c));
+
+  // Subscribe buttons
+  document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const input = this.previousElementSibling;
+      if (input && input.type === 'email') {
+        if (input.value && input.value.includes('@')) {
+          this.textContent = '✓ Inscrito!';
+          this.style.background = 'var(--neon2)';
+          input.value = '';
+          setTimeout(() => {
+            this.textContent = this.textContent.includes('Agora') ? 'Assinar Agora' : 'Quero Receber';
+            this.style.background = '';
+          }, 3000);
+        } else {
+          input.style.borderColor = 'var(--fire)';
+          setTimeout(() => input.style.borderColor = '', 1500);
+        }
+      }
+    });
+  });
+</script>
+</body>
+</html>
