@@ -4,1270 +4,897 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RESPAWN — Newsletter Gamer</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;900&family=Syne+Mono&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #080a0f;
-    --bg2: #0d1117;
-    --surface: #111520;
-    --surface2: #161c2a;
-    --neon: #00f5a0;
-    --neon2: #00d4f5;
-    --fire: #ff3c00;
-    --gold: #f5c842;
-    --text: #e8edf5;
-    --muted: #5a6478;
+    --bg: #080a0f; --bg2: #0d1117;
+    --surface: #111520; --surface2: #161c2a;
+    --neon: #00f5a0; --neon2: #00d4f5;
+    --fire: #ff3c00; --gold: #f5c842;
+    --text: #e8edf5; --muted: #5a6478;
     --border: rgba(0,245,160,0.15);
     --scanline: rgba(0,245,160,0.03);
   }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { background:var(--bg); color:var(--text); font-family:'Syne',sans-serif; overflow-x:hidden; }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Syne', sans-serif;
-    overflow-x: hidden;
-    cursor: none;
-  }
-
-  /* CUSTOM CURSOR */
-  .cursor {
-    width: 12px; height: 12px;
-    background: var(--neon);
-    border-radius: 50%;
-    position: fixed; top: 0; left: 0;
-    pointer-events: none; z-index: 9999;
-    transition: transform 0.1s;
-    mix-blend-mode: screen;
-  }
-  .cursor-ring {
-    width: 36px; height: 36px;
-    border: 1px solid var(--neon);
-    border-radius: 50%;
-    position: fixed; top: 0; left: 0;
-    pointer-events: none; z-index: 9998;
-    transition: all 0.15s ease;
-    opacity: 0.5;
-  }
-
-  /* SCANLINES OVERLAY */
   body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      var(--scanline) 0px,
-      var(--scanline) 1px,
-      transparent 1px,
-      transparent 4px
-    );
-    pointer-events: none; z-index: 1000;
+    content:''; position:fixed; inset:0;
+    background: repeating-linear-gradient(0deg,var(--scanline) 0px,var(--scanline) 1px,transparent 1px,transparent 4px);
+    pointer-events:none; z-index:1000;
   }
+
+  /* PAGE SYSTEM */
+  .page { display:none; }
+  .page.active { display:block; }
 
   /* NAV */
   nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 48px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(8,10,15,0.85);
-    backdrop-filter: blur(16px);
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 48px;
+    border-bottom:1px solid var(--border);
+    background:rgba(8,10,15,0.92);
+    backdrop-filter:blur(16px);
   }
-
   .nav-logo {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900; font-size: 28px;
-    letter-spacing: 4px;
-    color: var(--neon);
-    text-shadow: 0 0 20px var(--neon), 0 0 60px rgba(0,245,160,0.3);
+    font-family:'Barlow Condensed',sans-serif;
+    font-weight:900; font-size:28px; letter-spacing:4px;
+    color:var(--neon);
+    text-shadow:0 0 20px var(--neon),0 0 60px rgba(0,245,160,0.3);
+    cursor:pointer;
   }
-
-  .nav-links {
-    display: flex; gap: 32px; list-style: none;
-  }
-
+  .nav-links { display:flex; gap:28px; list-style:none; }
   .nav-links a {
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 13px; letter-spacing: 2px; text-transform: uppercase;
-    transition: color 0.2s;
-    font-weight: 700;
+    color:var(--muted); text-decoration:none;
+    font-size:13px; letter-spacing:2px; text-transform:uppercase;
+    transition:color 0.2s; font-weight:700; cursor:pointer;
   }
-
-  .nav-links a:hover { color: var(--neon); }
-
+  .nav-links a:hover, .nav-links a.active-link { color:var(--neon); }
   .nav-cta {
-    background: var(--neon);
-    color: var(--bg) !important;
-    padding: 8px 20px;
-    border-radius: 2px;
-    font-size: 12px !important;
-    letter-spacing: 2px !important;
+    background:var(--neon); color:var(--bg) !important;
+    padding:8px 20px; border-radius:2px;
+    font-size:12px !important; letter-spacing:2px !important;
   }
+  .nav-hamburger { display:none; background:none; border:none; color:var(--neon); font-size:24px; cursor:pointer; }
+  .nav-mobile { display:none; }
 
   /* HERO */
   .hero {
-    min-height: 100vh;
-    display: flex; flex-direction: column;
-    justify-content: center; align-items: flex-start;
-    padding: 120px 48px 80px;
-    position: relative; overflow: hidden;
+    min-height:100vh; display:flex; flex-direction:column;
+    justify-content:center; align-items:flex-start;
+    padding:120px 48px 80px; position:relative; overflow:hidden;
   }
-
   .hero-grid {
-    position: absolute; inset: 0;
-    background-image:
-      linear-gradient(rgba(0,245,160,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,245,160,0.04) 1px, transparent 1px);
-    background-size: 64px 64px;
-    animation: grid-drift 20s linear infinite;
+    position:absolute; inset:0;
+    background-image:linear-gradient(rgba(0,245,160,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,160,0.04) 1px,transparent 1px);
+    background-size:64px 64px;
+    animation:grid-drift 20s linear infinite;
   }
-
-  @keyframes grid-drift {
-    from { background-position: 0 0; }
-    to { background-position: 64px 64px; }
-  }
-
+  @keyframes grid-drift { from{background-position:0 0} to{background-position:64px 64px} }
   .hero-glow {
-    position: absolute;
-    top: 20%; right: -10%;
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(0,245,160,0.08) 0%, transparent 70%);
-    animation: pulse-glow 4s ease-in-out infinite;
+    position:absolute; top:20%; right:-10%; width:600px; height:600px;
+    background:radial-gradient(circle,rgba(0,245,160,0.08) 0%,transparent 70%);
+    animation:pulse-glow 4s ease-in-out infinite;
   }
-
   .hero-glow2 {
-    position: absolute;
-    bottom: 10%; left: -5%;
-    width: 400px; height: 400px;
-    background: radial-gradient(circle, rgba(0,212,245,0.06) 0%, transparent 70%);
-    animation: pulse-glow 6s ease-in-out infinite reverse;
+    position:absolute; bottom:10%; left:-5%; width:400px; height:400px;
+    background:radial-gradient(circle,rgba(0,212,245,0.06) 0%,transparent 70%);
+    animation:pulse-glow 6s ease-in-out infinite reverse;
   }
-
-  @keyframes pulse-glow {
-    0%, 100% { opacity: 0.5; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.1); }
-  }
-
+  @keyframes pulse-glow { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.1)} }
   .hero-tag {
-    font-family: 'Syne Mono', monospace;
-    font-size: 11px; letter-spacing: 4px;
-    color: var(--neon); text-transform: uppercase;
-    margin-bottom: 24px;
-    display: flex; align-items: center; gap: 12px;
+    font-family:'Syne Mono',monospace; font-size:11px; letter-spacing:4px;
+    color:var(--neon); text-transform:uppercase; margin-bottom:24px;
+    display:flex; align-items:center; gap:12px;
   }
-
-  .hero-tag::before {
-    content: '';
-    width: 40px; height: 1px;
-    background: var(--neon);
-  }
-
+  .hero-tag::before { content:''; width:40px; height:1px; background:var(--neon); }
   .hero-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    font-size: clamp(72px, 10vw, 148px);
-    line-height: 0.88;
-    letter-spacing: -2px;
-    text-transform: uppercase;
-    position: relative; z-index: 1;
-    animation: title-in 0.8s cubic-bezier(0.16,1,0.3,1) both;
+    font-family:'Barlow Condensed',sans-serif; font-weight:900;
+    font-size:clamp(72px,10vw,148px); line-height:.88;
+    letter-spacing:-2px; text-transform:uppercase; position:relative; z-index:1;
+    animation:title-in .8s cubic-bezier(.16,1,.3,1) both;
   }
-
-  @keyframes title-in {
-    from { opacity: 0; transform: translateY(40px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .hero-title .line2 {
-    color: transparent;
-    -webkit-text-stroke: 1px rgba(255,255,255,0.2);
-  }
-
-  .hero-title .accent { color: var(--neon); }
-
-  .hero-sub {
-    margin-top: 32px;
-    max-width: 500px;
-    font-size: 16px; line-height: 1.7;
-    color: var(--muted);
-    animation: title-in 0.8s 0.15s cubic-bezier(0.16,1,0.3,1) both;
-  }
-
-  .hero-stats {
-    display: flex; gap: 48px; margin-top: 48px;
-    animation: title-in 0.8s 0.25s cubic-bezier(0.16,1,0.3,1) both;
-  }
-
-  .stat-num {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 42px; font-weight: 900;
-    color: var(--neon);
-    line-height: 1;
-  }
-
-  .stat-label {
-    font-size: 11px; letter-spacing: 2px;
-    color: var(--muted); text-transform: uppercase;
-    margin-top: 4px;
-  }
-
-  .hero-subscribe {
-    margin-top: 48px;
-    display: flex; gap: 0;
-    animation: title-in 0.8s 0.35s cubic-bezier(0.16,1,0.3,1) both;
-  }
-
+  @keyframes title-in { from{opacity:0;transform:translateY(40px)} to{opacity:1;transform:translateY(0)} }
+  .hero-title .line2 { color:transparent; -webkit-text-stroke:1px rgba(255,255,255,0.2); }
+  .hero-title .accent { color:var(--neon); }
+  .hero-sub { margin-top:32px; max-width:500px; font-size:16px; line-height:1.7; color:var(--muted); animation:title-in .8s .15s cubic-bezier(.16,1,.3,1) both; }
+  .hero-stats { display:flex; gap:48px; margin-top:48px; animation:title-in .8s .25s cubic-bezier(.16,1,.3,1) both; }
+  .stat-num { font-family:'Barlow Condensed',sans-serif; font-size:42px; font-weight:900; color:var(--neon); line-height:1; }
+  .stat-label { font-size:11px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-top:4px; }
+  .hero-subscribe { margin-top:48px; display:flex; animation:title-in .8s .35s cubic-bezier(.16,1,.3,1) both; }
   .hero-subscribe input {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-right: none;
-    color: var(--text);
-    padding: 14px 20px;
-    font-family: 'Syne', sans-serif;
-    font-size: 14px; width: 300px;
-    outline: none;
-    transition: border-color 0.2s;
+    background:var(--surface); border:1px solid var(--border); border-right:none;
+    color:var(--text); padding:14px 20px; font-family:'Syne',sans-serif; font-size:14px; width:300px; outline:none; transition:border-color .2s;
   }
-
-  .hero-subscribe input::placeholder { color: var(--muted); }
-  .hero-subscribe input:focus { border-color: var(--neon); }
-
-  .hero-subscribe button {
-    background: var(--neon);
-    color: var(--bg);
-    border: none;
-    padding: 14px 28px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 15px; font-weight: 700;
-    letter-spacing: 2px; text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s;
+  .hero-subscribe input::placeholder { color:var(--muted); }
+  .hero-subscribe input:focus { border-color:var(--neon); }
+  .hero-subscribe button, .cta-form button, .btn-neon {
+    background:var(--neon); color:var(--bg); border:none; padding:14px 28px;
+    font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700;
+    letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:all .2s;
   }
-
-  .hero-subscribe button:hover {
-    background: var(--neon2);
-    box-shadow: 0 0 30px rgba(0,245,160,0.5);
+  .hero-subscribe button:hover, .cta-form button:hover, .btn-neon:hover {
+    background:var(--neon2); box-shadow:0 0 30px rgba(0,245,160,.5);
   }
 
   /* TICKER */
-  .ticker {
-    background: var(--neon);
-    color: var(--bg);
-    padding: 10px 0;
-    overflow: hidden;
-    white-space: nowrap;
-  }
-
-  .ticker-inner {
-    display: inline-flex; gap: 0;
-    animation: ticker-scroll 30s linear infinite;
-  }
-
-  .ticker-item {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700; font-size: 13px;
-    letter-spacing: 3px; text-transform: uppercase;
-    padding: 0 32px;
-  }
-
-  .ticker-sep {
-    color: rgba(8,10,15,0.4);
-    padding: 0 8px;
-  }
-
-  @keyframes ticker-scroll {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
+  .ticker { background:var(--neon); color:var(--bg); padding:10px 0; overflow:hidden; white-space:nowrap; }
+  .ticker-inner { display:inline-flex; animation:ticker-scroll 30s linear infinite; }
+  .ticker-item { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:13px; letter-spacing:3px; text-transform:uppercase; padding:0 32px; }
+  @keyframes ticker-scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
   /* SECTION LABEL */
   .section-label {
-    font-family: 'Syne Mono', monospace;
-    font-size: 10px; letter-spacing: 4px;
-    color: var(--neon); text-transform: uppercase;
-    display: flex; align-items: center; gap: 12px;
-    margin-bottom: 40px;
+    font-family:'Syne Mono',monospace; font-size:10px; letter-spacing:4px;
+    color:var(--neon); text-transform:uppercase;
+    display:flex; align-items:center; gap:12px; margin-bottom:40px;
   }
-
-  .section-label::after {
-    content: '';
-    flex: 1; height: 1px;
-    background: linear-gradient(90deg, var(--border), transparent);
-  }
+  .section-label::after { content:''; flex:1; height:1px; background:linear-gradient(90deg,var(--border),transparent); }
 
   /* FEATURED */
-  .featured {
-    padding: 80px 48px;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .featured-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 2px;
-  }
-
-  .card {
-    background: var(--surface);
-    position: relative; overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.3s;
-  }
-
-  .card::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(135deg, rgba(0,245,160,0.05) 0%, transparent 60%);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .card:hover::after { opacity: 1; }
-  .card:hover { transform: translateY(-2px); }
-
+  .featured { padding:80px 48px; border-bottom:1px solid var(--border); }
+  .featured-grid { display:grid; grid-template-columns:2fr 1fr; grid-template-rows:auto auto; gap:2px; }
+  .card { background:var(--surface); position:relative; overflow:hidden; cursor:pointer; transition:transform .3s; }
+  .card::after { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(0,245,160,.05) 0%,transparent 60%); opacity:0; transition:opacity .3s; }
+  .card:hover::after { opacity:1; }
+  .card:hover { transform:translateY(-2px); }
   .card-main {
-    grid-row: 1 / 3;
-    min-height: 460px;
-    display: flex; flex-direction: column;
-    justify-content: flex-end;
-    padding: 40px;
-    background:
-      linear-gradient(0deg, rgba(8,10,15,0.95) 0%, rgba(8,10,15,0.3) 100%),
-      url('https://picsum.photos/seed/game1/900/600') center/cover;
+    grid-row:1/3; min-height:460px; display:flex; flex-direction:column; justify-content:flex-end; padding:40px;
+    background:linear-gradient(0deg,rgba(8,10,15,.95) 0%,rgba(8,10,15,.3) 100%),url('https://picsum.photos/seed/game1/900/600') center/cover;
   }
-
   .card-sm {
-    min-height: 220px;
-    display: flex; flex-direction: column;
-    justify-content: flex-end;
-    padding: 24px;
-    background:
-      linear-gradient(0deg, rgba(8,10,15,0.95) 0%, rgba(8,10,15,0.2) 100%),
-      url('https://picsum.photos/seed/game2/600/400') center/cover;
+    min-height:220px; display:flex; flex-direction:column; justify-content:flex-end; padding:24px;
+    background:linear-gradient(0deg,rgba(8,10,15,.95) 0%,rgba(8,10,15,.2) 100%),url('https://picsum.photos/seed/game2/600/400') center/cover;
   }
-
-  .card-sm2 {
-    background-image:
-      linear-gradient(0deg, rgba(8,10,15,0.95) 0%, rgba(8,10,15,0.2) 100%),
-      url('https://picsum.photos/seed/game3/600/400') center/cover;
-  }
-
-  .card-badge {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 10px; font-weight: 700;
-    letter-spacing: 3px; text-transform: uppercase;
-    padding: 4px 10px;
-    margin-bottom: 16px;
-    display: inline-block;
-    border-radius: 1px;
-  }
-
-  .badge-hot { background: var(--fire); color: #fff; }
-  .badge-new { background: var(--neon); color: var(--bg); }
-  .badge-review { background: var(--gold); color: var(--bg); }
-  .badge-guide { background: var(--neon2); color: var(--bg); }
-  .badge-esports { background: #8b5cf6; color: #fff; }
-
-  .card-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900; text-transform: uppercase;
-    line-height: 1.05; letter-spacing: -0.5px;
-  }
-
-  .card-main .card-title { font-size: clamp(28px, 3vw, 42px); }
-  .card-sm .card-title { font-size: 22px; }
-
-  .card-meta {
-    font-size: 11px; letter-spacing: 2px;
-    color: var(--muted); text-transform: uppercase;
-    margin-top: 10px;
-    font-family: 'Syne Mono', monospace;
-  }
+  .card-sm2 { background-image:linear-gradient(0deg,rgba(8,10,15,.95) 0%,rgba(8,10,15,.2) 100%),url('https://picsum.photos/seed/game3/600/400') center/cover; }
+  .card-badge { font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; padding:4px 10px; margin-bottom:16px; display:inline-block; border-radius:1px; }
+  .badge-hot { background:var(--fire); color:#fff; }
+  .badge-new { background:var(--neon); color:var(--bg); }
+  .badge-review { background:var(--gold); color:var(--bg); }
+  .badge-guide { background:var(--neon2); color:var(--bg); }
+  .badge-esports { background:#8b5cf6; color:#fff; }
+  .card-title { font-family:'Barlow Condensed',sans-serif; font-weight:900; text-transform:uppercase; line-height:1.05; letter-spacing:-.5px; }
+  .card-main .card-title { font-size:clamp(28px,3vw,42px); }
+  .card-sm .card-title { font-size:22px; }
+  .card-meta { font-size:11px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; margin-top:10px; font-family:'Syne Mono',monospace; }
 
   /* NEWS GRID */
-  .news-section {
-    padding: 80px 48px;
-    border-bottom: 1px solid var(--border);
-  }
+  .news-section { padding:80px 48px; border-bottom:1px solid var(--border); }
+  .news-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; }
+  .news-card { background:var(--surface); padding:28px; position:relative; overflow:hidden; transition:background .2s; cursor:pointer; }
+  .news-card:hover { background:var(--surface2); }
+  .news-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:0; background:var(--neon); transition:height .3s; }
+  .news-card:hover::before { height:100%; }
+  .news-img { width:100%; height:160px; object-fit:cover; margin-bottom:20px; filter:grayscale(20%); transition:filter .3s; }
+  .news-card:hover .news-img { filter:grayscale(0%); }
+  .news-title { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700; text-transform:uppercase; line-height:1.15; margin-bottom:12px; }
+  .news-excerpt { font-size:13px; line-height:1.7; color:var(--muted); }
+  .news-footer { display:flex; justify-content:space-between; align-items:center; margin-top:20px; padding-top:16px; border-top:1px solid var(--border); }
+  .news-author { font-size:11px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; font-family:'Syne Mono',monospace; }
+  .news-read { font-size:11px; letter-spacing:2px; color:var(--neon); text-transform:uppercase; font-family:'Barlow Condensed',sans-serif; font-weight:700; }
 
-  .news-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
-  }
-
-  .news-card {
-    background: var(--surface);
-    padding: 28px;
-    position: relative; overflow: hidden;
-    transition: background 0.2s;
-    cursor: pointer;
-  }
-
-  .news-card:hover { background: var(--surface2); }
-
-  .news-card::before {
-    content: '';
-    position: absolute; top: 0; left: 0;
-    width: 3px; height: 0;
-    background: var(--neon);
-    transition: height 0.3s;
-  }
-
-  .news-card:hover::before { height: 100%; }
-
-  .news-img {
-    width: 100%; height: 160px;
-    object-fit: cover; margin-bottom: 20px;
-    filter: grayscale(20%);
-    transition: filter 0.3s;
-  }
-
-  .news-card:hover .news-img { filter: grayscale(0%); }
-
-  .news-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 20px; font-weight: 700;
-    text-transform: uppercase;
-    line-height: 1.15; margin-bottom: 12px;
-  }
-
-  .news-excerpt {
-    font-size: 13px; line-height: 1.7;
-    color: var(--muted);
-  }
-
-  .news-footer {
-    display: flex; justify-content: space-between;
-    align-items: center; margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-  }
-
-  .news-author {
-    font-size: 11px; letter-spacing: 1px;
-    color: var(--muted); text-transform: uppercase;
-    font-family: 'Syne Mono', monospace;
-  }
-
-  .news-read {
-    font-size: 11px; letter-spacing: 2px;
-    color: var(--neon); text-transform: uppercase;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-  }
-
-  /* REVIEW SECTION */
-  .review-section {
-    padding: 80px 48px;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .review-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2px;
-  }
-
-  .review-card {
-    background: var(--surface);
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.3s;
-  }
-
-  .review-card:hover { transform: scale(1.02); z-index: 1; }
-
-  .review-thumb {
-    width: 100%; height: 200px;
-    object-fit: cover;
-    display: block;
-    filter: saturate(0.8);
-    transition: filter 0.3s;
-  }
-
-  .review-card:hover .review-thumb { filter: saturate(1.2); }
-
-  .review-body { padding: 20px; }
-
-  .review-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 18px; font-weight: 700;
-    text-transform: uppercase; margin: 8px 0;
-  }
-
-  .review-platform {
-    font-size: 10px; letter-spacing: 2px;
-    color: var(--muted); text-transform: uppercase;
-    font-family: 'Syne Mono', monospace;
-  }
-
-  .score-bar {
-    margin-top: 14px;
-    background: var(--bg);
-    height: 4px; border-radius: 0;
-    overflow: hidden;
-  }
-
-  .score-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--neon), var(--neon2));
-    border-radius: 0;
-    transition: width 1s ease;
-  }
-
-  .score-num {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 36px; font-weight: 900;
-    color: var(--neon); margin-top: 8px;
-    line-height: 1;
-  }
-
-  .score-label {
-    font-size: 10px; letter-spacing: 2px;
-    color: var(--muted); text-transform: uppercase;
-    font-family: 'Syne Mono', monospace;
-  }
+  /* REVIEW */
+  .review-section { padding:80px 48px; background:var(--bg2); border-bottom:1px solid var(--border); }
+  .review-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; }
+  .review-card { background:var(--surface); overflow:hidden; cursor:pointer; transition:transform .3s; }
+  .review-card:hover { transform:scale(1.02); z-index:1; }
+  .review-thumb { width:100%; height:200px; object-fit:cover; display:block; filter:saturate(.8); transition:filter .3s; }
+  .review-card:hover .review-thumb { filter:saturate(1.2); }
+  .review-body { padding:20px; }
+  .review-title { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; text-transform:uppercase; margin:8px 0; }
+  .review-platform { font-size:10px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; font-family:'Syne Mono',monospace; }
+  .score-bar { margin-top:14px; background:var(--bg); height:4px; overflow:hidden; }
+  .score-fill { height:100%; background:linear-gradient(90deg,var(--neon),var(--neon2)); transition:width 1s ease; }
+  .score-num { font-family:'Barlow Condensed',sans-serif; font-size:36px; font-weight:900; color:var(--neon); margin-top:8px; line-height:1; }
+  .score-label { font-size:10px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; font-family:'Syne Mono',monospace; }
 
   /* ESPORTS */
-  .esports-section {
-    padding: 80px 48px;
-    border-bottom: 1px solid var(--border);
-  }
+  .esports-section { padding:80px 48px; border-bottom:1px solid var(--border); }
+  .esports-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; }
+  .match-card { background:var(--surface); padding:28px 32px; display:flex; align-items:center; justify-content:space-between; transition:background .2s; cursor:pointer; }
+  .match-card:hover { background:var(--surface2); }
+  .team { display:flex; align-items:center; gap:14px; flex:1; }
+  .team-right { flex-direction:row-reverse; }
+  .team-logo { width:44px; height:44px; border-radius:50%; background:var(--surface2); display:flex; align-items:center; justify-content:center; font-size:20px; border:1px solid var(--border); }
+  .team-name { font-family:'Barlow Condensed',sans-serif; font-size:18px; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
+  .team-record { font-size:11px; color:var(--muted); font-family:'Syne Mono',monospace; }
+  .match-center { text-align:center; padding:0 24px; }
+  .match-vs { font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:900; color:var(--muted); }
+  .match-score { font-family:'Barlow Condensed',sans-serif; font-size:36px; font-weight:900; color:var(--neon); display:flex; align-items:center; gap:8px; }
+  .match-score span { color:var(--muted); font-size:20px; }
+  .match-game { font-size:10px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; font-family:'Syne Mono',monospace; margin-top:4px; }
+  .live-badge { background:var(--fire); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:2px 8px; animation:blink 1s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-  .esports-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px;
-  }
-
-  .match-card {
-    background: var(--surface);
-    padding: 28px 32px;
-    display: flex; align-items: center; justify-content: space-between;
-    transition: background 0.2s;
-    cursor: pointer;
-  }
-
-  .match-card:hover { background: var(--surface2); }
-
-  .team {
-    display: flex; align-items: center;
-    gap: 14px; flex: 1;
-  }
-
-  .team-right { flex-direction: row-reverse; }
-
-  .team-logo {
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    background: var(--surface2);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-    border: 1px solid var(--border);
-  }
-
-  .team-name {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 18px; font-weight: 700;
-    text-transform: uppercase; letter-spacing: 1px;
-  }
-
-  .team-record {
-    font-size: 11px; color: var(--muted);
-    font-family: 'Syne Mono', monospace;
-  }
-
-  .match-center {
-    text-align: center; padding: 0 24px;
-  }
-
-  .match-vs {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 28px; font-weight: 900;
-    color: var(--muted);
-  }
-
-  .match-score {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 36px; font-weight: 900;
-    color: var(--neon);
-    display: flex; align-items: center; gap: 8px;
-  }
-
-  .match-score span { color: var(--muted); font-size: 20px; }
-
-  .match-game {
-    font-size: 10px; letter-spacing: 2px;
-    color: var(--muted); text-transform: uppercase;
-    font-family: 'Syne Mono', monospace;
-    margin-top: 4px;
-  }
-
-  .live-badge {
-    background: var(--fire);
-    color: #fff;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 10px; font-weight: 700;
-    letter-spacing: 2px; text-transform: uppercase;
-    padding: 2px 8px; border-radius: 1px;
-    animation: blink 1s infinite;
-  }
-
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
-
-  /* NEWSLETTER CTA */
-  .newsletter-cta {
-    padding: 100px 48px;
-    text-align: center;
-    position: relative; overflow: hidden;
-    background: var(--bg2);
-  }
-
-  .cta-bg {
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(ellipse at 50% 50%, rgba(0,245,160,0.07) 0%, transparent 70%);
-  }
-
-  .cta-grid {
-    position: absolute; inset: 0;
-    background-image:
-      linear-gradient(rgba(0,245,160,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,245,160,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
-
-  .cta-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900; font-size: clamp(48px, 7vw, 96px);
-    text-transform: uppercase; line-height: 0.9;
-    position: relative; z-index: 1;
-  }
-
-  .cta-title .highlight {
-    color: var(--neon);
-    text-shadow: 0 0 40px rgba(0,245,160,0.5);
-  }
-
-  .cta-sub {
-    font-size: 16px; color: var(--muted);
-    max-width: 480px; margin: 24px auto;
-    line-height: 1.7; position: relative; z-index: 1;
-  }
-
-  .cta-form {
-    display: flex; justify-content: center;
-    gap: 0; max-width: 480px; margin: 40px auto 0;
-    position: relative; z-index: 1;
-  }
-
-  .cta-form input {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-right: none;
-    color: var(--text);
-    padding: 14px 20px;
-    font-family: 'Syne', sans-serif;
-    font-size: 14px; flex: 1;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .cta-form input:focus { border-color: var(--neon); }
-  .cta-form input::placeholder { color: var(--muted); }
-
-  .cta-form button {
-    background: var(--neon);
-    color: var(--bg);
-    border: none;
-    padding: 14px 32px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 15px; font-weight: 700;
-    letter-spacing: 3px; text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-
-  .cta-form button:hover {
-    background: var(--neon2);
-    box-shadow: 0 0 40px rgba(0,245,160,0.5);
-  }
-
-  .cta-perks {
-    display: flex; justify-content: center;
-    gap: 32px; margin-top: 32px;
-    position: relative; z-index: 1;
-  }
-
-  .perk {
-    font-size: 12px; letter-spacing: 1px;
-    color: var(--muted); text-transform: uppercase;
-    display: flex; align-items: center; gap: 8px;
-    font-family: 'Syne Mono', monospace;
-  }
-
-  .perk::before {
-    content: '✓';
-    color: var(--neon); font-weight: 900;
-  }
+  /* CTA */
+  .newsletter-cta { padding:100px 48px; text-align:center; position:relative; overflow:hidden; background:var(--bg2); }
+  .cta-bg { position:absolute; inset:0; background:radial-gradient(ellipse at 50% 50%,rgba(0,245,160,.07) 0%,transparent 70%); }
+  .cta-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(0,245,160,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,160,.03) 1px,transparent 1px); background-size:40px 40px; }
+  .cta-title { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:clamp(48px,7vw,96px); text-transform:uppercase; line-height:.9; position:relative; z-index:1; }
+  .cta-title .highlight { color:var(--neon); text-shadow:0 0 40px rgba(0,245,160,.5); }
+  .cta-sub { font-size:16px; color:var(--muted); max-width:480px; margin:24px auto; line-height:1.7; position:relative; z-index:1; }
+  .cta-form { display:flex; justify-content:center; max-width:480px; margin:40px auto 0; position:relative; z-index:1; }
+  .cta-form input { background:var(--surface); border:1px solid var(--border); border-right:none; color:var(--text); padding:14px 20px; font-family:'Syne',sans-serif; font-size:14px; flex:1; outline:none; transition:border-color .2s; }
+  .cta-form input:focus { border-color:var(--neon); }
+  .cta-form input::placeholder { color:var(--muted); }
+  .cta-perks { display:flex; justify-content:center; gap:32px; margin-top:32px; position:relative; z-index:1; }
+  .perk { font-size:12px; letter-spacing:1px; color:var(--muted); text-transform:uppercase; display:flex; align-items:center; gap:8px; font-family:'Syne Mono',monospace; }
+  .perk::before { content:'✓'; color:var(--neon); font-weight:900; }
 
   /* FOOTER */
-  footer {
-    padding: 48px;
-    border-top: 1px solid var(--border);
-    display: flex; justify-content: space-between; align-items: center;
-    background: var(--bg);
-  }
+  footer { padding:48px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .footer-logo { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:24px; letter-spacing:4px; color:var(--neon); text-shadow:0 0 20px rgba(0,245,160,.3); cursor:pointer; }
+  .footer-links { display:flex; gap:32px; list-style:none; }
+  .footer-links a { color:var(--muted); text-decoration:none; font-size:12px; letter-spacing:2px; text-transform:uppercase; font-weight:700; transition:color .2s; cursor:pointer; }
+  .footer-links a:hover { color:var(--neon); }
+  .footer-copy { font-size:11px; color:var(--muted); font-family:'Syne Mono',monospace; }
 
-  .footer-logo {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900; font-size: 24px;
-    letter-spacing: 4px; color: var(--neon);
-    text-shadow: 0 0 20px rgba(0,245,160,0.3);
-  }
+  /* REVEAL */
+  .reveal { opacity:0; transform:translateY(30px); transition:opacity .6s ease,transform .6s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
 
-  .footer-links {
-    display: flex; gap: 32px; list-style: none;
-  }
+  /* ===================== SUB-PAGES ===================== */
+  .subpage { padding:120px 48px 80px; min-height:100vh; }
+  .subpage-header { margin-bottom:60px; }
+  .subpage-title { font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:clamp(48px,6vw,80px); text-transform:uppercase; line-height:.9; }
+  .subpage-title span { color:var(--neon); }
+  .subpage-desc { margin-top:16px; font-size:16px; color:var(--muted); max-width:600px; line-height:1.7; }
 
-  .footer-links a {
-    color: var(--muted); text-decoration: none;
-    font-size: 12px; letter-spacing: 2px;
-    text-transform: uppercase; font-weight: 700;
-    transition: color 0.2s;
-  }
+  /* ARTICLE LIST */
+  .article-list { display:flex; flex-direction:column; gap:2px; }
+  .article-item { background:var(--surface); padding:28px 32px; display:flex; gap:24px; align-items:flex-start; transition:background .2s; cursor:pointer; border-left:3px solid transparent; }
+  .article-item:hover { background:var(--surface2); border-left-color:var(--neon); }
+  .article-thumb { width:120px; height:80px; object-fit:cover; flex-shrink:0; }
+  .article-info { flex:1; }
+  .article-title { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:700; text-transform:uppercase; margin-bottom:8px; }
+  .article-excerpt { font-size:13px; color:var(--muted); line-height:1.6; }
+  .article-meta { margin-top:12px; font-size:11px; color:var(--muted); font-family:'Syne Mono',monospace; letter-spacing:1px; }
 
-  .footer-links a:hover { color: var(--neon); }
-
-  .footer-copy {
-    font-size: 11px; color: var(--muted);
-    font-family: 'Syne Mono', monospace;
+  /* CONTACT FORM */
+  .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:40px; }
+  .form-group { margin-bottom:20px; }
+  .form-group label { display:block; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; font-family:'Syne Mono',monospace; }
+  .form-group input, .form-group textarea, .form-group select {
+    width:100%; background:var(--surface); border:1px solid var(--border); color:var(--text);
+    padding:12px 16px; font-family:'Syne',sans-serif; font-size:14px; outline:none; transition:border-color .2s;
   }
+  .form-group input:focus, .form-group textarea:focus { border-color:var(--neon); }
+  .form-group textarea { height:140px; resize:vertical; }
+  .contact-info { padding:32px; background:var(--surface); }
+  .contact-info h3 { font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:700; text-transform:uppercase; margin-bottom:24px; color:var(--neon); }
+  .contact-info-item { margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--border); }
+  .contact-info-item:last-child { border-bottom:none; }
+  .contact-info-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); font-family:'Syne Mono',monospace; }
+  .contact-info-val { font-size:15px; margin-top:4px; }
 
-  /* SCROLL ANIMATIONS */
-  .reveal {
-    opacity: 0; transform: translateY(30px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-  }
+  /* SOBRE */
+  .sobre-grid { display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-bottom:60px; }
+  .sobre-text p { font-size:15px; line-height:1.8; color:var(--muted); margin-bottom:16px; }
+  .team-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; margin-top:40px; }
+  .team-card { background:var(--surface); padding:28px; text-align:center; }
+  .team-avatar { width:72px; height:72px; border-radius:50%; background:var(--surface2); margin:0 auto 16px; display:flex; align-items:center; justify-content:center; font-size:28px; border:2px solid var(--border); }
+  .team-name2 { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:700; text-transform:uppercase; }
+  .team-role { font-size:11px; letter-spacing:2px; color:var(--neon); text-transform:uppercase; font-family:'Syne Mono',monospace; margin-top:4px; }
+  .team-bio { font-size:13px; color:var(--muted); margin-top:12px; line-height:1.6; }
 
-  .reveal.visible {
-    opacity: 1; transform: translateY(0);
-  }
+  /* PRIVACIDADE */
+  .privacy-content { max-width:800px; }
+  .privacy-content h2 { font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:700; text-transform:uppercase; color:var(--neon); margin:40px 0 16px; }
+  .privacy-content h2:first-child { margin-top:0; }
+  .privacy-content p { font-size:14px; line-height:1.8; color:var(--muted); margin-bottom:12px; }
+  .privacy-content ul { padding-left:20px; color:var(--muted); font-size:14px; line-height:1.8; }
 
-  /* GLITCH EFFECT */
-  .glitch {
-    position: relative;
-  }
+  /* ANUNCIAR */
+  .ad-packages { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; margin-bottom:60px; }
+  .ad-pkg { background:var(--surface); padding:32px; position:relative; }
+  .ad-pkg.featured-pkg { background:var(--surface2); border-top:3px solid var(--neon); }
+  .pkg-name { font-family:'Barlow Condensed',sans-serif; font-size:24px; font-weight:700; text-transform:uppercase; }
+  .pkg-price { font-family:'Barlow Condensed',sans-serif; font-size:48px; font-weight:900; color:var(--neon); line-height:1; margin:16px 0 4px; }
+  .pkg-price-sub { font-size:11px; color:var(--muted); letter-spacing:2px; text-transform:uppercase; font-family:'Syne Mono',monospace; }
+  .pkg-features { margin:24px 0; list-style:none; }
+  .pkg-features li { font-size:13px; color:var(--muted); padding:8px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+  .pkg-features li::before { content:'✓'; color:var(--neon); font-weight:900; flex-shrink:0; }
+  .pkg-badge { position:absolute; top:16px; right:16px; background:var(--neon); color:var(--bg); font-family:'Barlow Condensed',sans-serif; font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; padding:3px 8px; }
 
-  .glitch::before, .glitch::after {
-    content: attr(data-text);
-    position: absolute; top: 0; left: 0;
-    width: 100%; height: 100%;
-    opacity: 0;
-  }
+  /* ARQUIVO */
+  .archive-months { display:flex; flex-direction:column; gap:40px; }
+  .archive-month-title { font-family:'Barlow Condensed',sans-serif; font-size:32px; font-weight:700; text-transform:uppercase; color:var(--neon); margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:12px; }
+  .archive-list { display:grid; grid-template-columns:repeat(2,1fr); gap:2px; }
+  .archive-item { background:var(--surface); padding:20px 24px; cursor:pointer; transition:background .2s; display:flex; justify-content:space-between; align-items:center; }
+  .archive-item:hover { background:var(--surface2); }
+  .archive-item-title { font-family:'Barlow Condensed',sans-serif; font-size:17px; font-weight:700; text-transform:uppercase; }
+  .archive-item-date { font-size:10px; color:var(--muted); font-family:'Syne Mono',monospace; letter-spacing:1px; }
+  .archive-arrow { color:var(--neon); font-size:18px; }
 
-  .glitch:hover::before {
-    opacity: 0.6; color: var(--fire);
-    clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
-    transform: translateX(-3px);
-    animation: glitch1 0.3s ease;
-  }
-
-  .glitch:hover::after {
-    opacity: 0.6; color: var(--neon2);
-    clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
-    transform: translateX(3px);
-    animation: glitch2 0.3s ease;
-  }
-
-  @keyframes glitch1 {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-4px); }
-    75% { transform: translateX(4px); }
-    100% { transform: translateX(0); }
-  }
-
-  @keyframes glitch2 {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(4px); }
-    75% { transform: translateX(-4px); }
-    100% { transform: translateX(0); }
-  }
+  /* INFO BOX */
+  .info-box { background:var(--surface); border-left:3px solid var(--neon); padding:20px 24px; margin-bottom:32px; }
+  .info-box p { font-size:14px; color:var(--muted); line-height:1.7; }
 
   /* RESPONSIVE */
-  @media (max-width: 900px) {
-    nav { padding: 16px 24px; }
-    .nav-links { display: none; }
-    .hero { padding: 100px 24px 60px; }
-    .hero-subscribe { flex-direction: column; }
-    .hero-subscribe input { width: 100%; }
-    .hero-stats { gap: 24px; }
-    .featured { padding: 60px 24px; }
-    .featured-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
-    .card-main { grid-row: auto; min-height: 320px; }
-    .news-section, .review-section, .esports-section { padding: 60px 24px; }
-    .news-grid { grid-template-columns: 1fr; }
-    .review-grid { grid-template-columns: 1fr 1fr; }
-    .esports-grid { grid-template-columns: 1fr; }
-    .newsletter-cta { padding: 60px 24px; }
-    .cta-form { flex-direction: column; }
-    .cta-form input { border-right: 1px solid var(--border); }
-    .cta-perks { flex-wrap: wrap; gap: 16px; }
-    footer { flex-direction: column; gap: 24px; text-align: center; }
-    .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
+  @media(max-width:900px){
+    nav { padding:16px 20px; }
+    .nav-links { display:none; }
+    .nav-hamburger { display:block; }
+    .nav-mobile { flex-direction:column; gap:0; list-style:none; background:var(--bg2); position:fixed; top:64px; left:0; right:0; z-index:99; border-bottom:1px solid var(--border); }
+    .nav-mobile.open { display:flex; }
+    .nav-mobile li a { display:block; padding:16px 24px; color:var(--muted); text-decoration:none; font-size:14px; letter-spacing:2px; text-transform:uppercase; font-weight:700; border-bottom:1px solid var(--border); cursor:pointer; }
+    .hero { padding:100px 24px 60px; }
+    .hero-subscribe { flex-direction:column; }
+    .hero-subscribe input { width:100%; }
+    .hero-stats { gap:24px; }
+    .featured { padding:60px 24px; }
+    .featured-grid { grid-template-columns:1fr; }
+    .card-main { grid-row:auto; min-height:280px; }
+    .news-section,.review-section,.esports-section { padding:60px 24px; }
+    .news-grid { grid-template-columns:1fr; }
+    .review-grid { grid-template-columns:1fr 1fr; }
+    .esports-grid { grid-template-columns:1fr; }
+    .newsletter-cta { padding:60px 24px; }
+    .cta-form { flex-direction:column; }
+    .cta-form input { border-right:1px solid var(--border); }
+    .cta-perks { flex-wrap:wrap; gap:16px; }
+    footer { flex-direction:column; gap:24px; text-align:center; padding:32px 24px; }
+    .footer-links { flex-wrap:wrap; justify-content:center; gap:16px; }
+    .subpage { padding:100px 24px 60px; }
+    .sobre-grid,.contact-grid { grid-template-columns:1fr; }
+    .team-grid { grid-template-columns:1fr 1fr; }
+    .review-grid { grid-template-columns:1fr 1fr; }
+    .ad-packages { grid-template-columns:1fr; }
+    .archive-list { grid-template-columns:1fr; }
+    .match-card { flex-direction:column; gap:16px; text-align:center; }
+    .team,.team-right { flex-direction:column; justify-content:center; }
   }
 </style>
 </head>
 <body>
 
-<div class="cursor" id="cursor"></div>
-<div class="cursor-ring" id="cursorRing"></div>
-
 <!-- NAV -->
 <nav>
-  <div class="nav-logo">RESPAWN</div>
+  <div class="nav-logo" onclick="showPage('home')">RESPAWN</div>
   <ul class="nav-links">
-    <li><a href="#noticias">Notícias</a></li>
-    <li><a href="#reviews">Reviews</a></li>
-    <li><a href="#esports">Esports</a></li>
-    <li><a href="#guias">Guias</a></li>
-    <li><a href="#newsletter" class="nav-cta">Assinar</a></li>
+    <li><a onclick="showPage('noticias')" data-page="noticias">Notícias</a></li>
+    <li><a onclick="showPage('reviews')" data-page="reviews">Reviews</a></li>
+    <li><a onclick="showPage('esports')" data-page="esports">Esports</a></li>
+    <li><a onclick="showPage('guias')" data-page="guias">Guias</a></li>
+    <li><a onclick="showPage('newsletter')" class="nav-cta" data-page="newsletter">Assinar</a></li>
   </ul>
+  <button class="nav-hamburger" onclick="toggleMobile()">☰</button>
 </nav>
+<ul class="nav-mobile" id="navMobile">
+  <li><a onclick="showPage('home');toggleMobile()">Home</a></li>
+  <li><a onclick="showPage('noticias');toggleMobile()">Notícias</a></li>
+  <li><a onclick="showPage('reviews');toggleMobile()">Reviews</a></li>
+  <li><a onclick="showPage('esports');toggleMobile()">Esports</a></li>
+  <li><a onclick="showPage('guias');toggleMobile()">Guias</a></li>
+  <li><a onclick="showPage('sobre');toggleMobile()">Sobre</a></li>
+  <li><a onclick="showPage('newsletter');toggleMobile()">Assinar</a></li>
+</ul>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-grid"></div>
-  <div class="hero-glow"></div>
-  <div class="hero-glow2"></div>
-
-  <div class="hero-tag">Edição #042 — Maio 2026</div>
-
-  <h1 class="hero-title glitch" data-text="RESPAWN">
-    RES<span class="accent">P</span>AWN<br>
-    <span class="line2">NEWSLETTER</span>
-  </h1>
-
-  <p class="hero-sub">
-    O melhor do universo gamer direto na sua caixa de entrada.
-    Reviews, notícias, esports e análises toda semana — sem enrolação.
-  </p>
-
-  <div class="hero-stats">
-    <div>
-      <div class="stat-num">48K</div>
-      <div class="stat-label">Inscritos</div>
+<!-- ==================== HOME ==================== -->
+<div id="page-home" class="page active">
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-glow2"></div>
+    <div class="hero-tag">Edição #042 — Maio 2026</div>
+    <h1 class="hero-title">RES<span class="accent">P</span>AWN<br><span class="line2">NEWSLETTER</span></h1>
+    <p class="hero-sub">O melhor do universo gamer direto na sua caixa de entrada. Reviews, notícias, esports e análises toda semana — sem enrolação.</p>
+    <div class="hero-stats">
+      <div><div class="stat-num">48K</div><div class="stat-label">Inscritos</div></div>
+      <div><div class="stat-num">7+</div><div class="stat-label">Anos Online</div></div>
+      <div><div class="stat-num">100%</div><div class="stat-label">Sem Spoilers</div></div>
     </div>
-    <div>
-      <div class="stat-num">7+</div>
-      <div class="stat-label">Anos Online</div>
+    <div class="hero-subscribe">
+      <input type="email" placeholder="seu@email.com" id="heroEmail">
+      <button onclick="subscribe('heroEmail',this)">Quero Receber</button>
     </div>
-    <div>
-      <div class="stat-num">100%</div>
-      <div class="stat-label">Sem Spoilers</div>
+  </section>
+
+  <div class="ticker">
+    <div class="ticker-inner">
+      <span class="ticker-item">⚡ DOOM: The Dark Ages — Review Completo</span>
+      <span class="ticker-item">🏆 CBLOL — Playoffs Começam Amanhã</span>
+      <span class="ticker-item">🎮 GTA VI — Data Confirmada Para Setembro</span>
+      <span class="ticker-item">🔥 Elden Ring DLC — 9.5/10 Nota Final</span>
+      <span class="ticker-item">🚀 Xbox Game Pass — 12 Jogos Novos em Junho</span>
+      <span class="ticker-item">💥 Hollow Knight 2 — Trailer Revelado na Geoff</span>
+      <span class="ticker-item">⚡ DOOM: The Dark Ages — Review Completo</span>
+      <span class="ticker-item">🏆 CBLOL — Playoffs Começam Amanhã</span>
+      <span class="ticker-item">🎮 GTA VI — Data Confirmada Para Setembro</span>
+      <span class="ticker-item">🔥 Elden Ring DLC — 9.5/10 Nota Final</span>
+      <span class="ticker-item">🚀 Xbox Game Pass — 12 Jogos Novos em Junho</span>
+      <span class="ticker-item">💥 Hollow Knight 2 — Trailer Revelado na Geoff</span>
     </div>
   </div>
 
-  <div class="hero-subscribe">
-    <input type="email" placeholder="seu@email.com">
-    <button>Quero Receber</button>
-  </div>
-</section>
+  <section class="featured">
+    <div class="section-label">Destaques da Semana</div>
+    <div class="featured-grid">
+      <div class="card card-main reveal" onclick="showPage('noticias')">
+        <span class="card-badge badge-hot">🔥 Em Alta</span>
+        <h2 class="card-title">GTA VI finalmente tem data: prepare seu PC e suas economias</h2>
+        <p class="card-meta">Há 2 horas · Por Rafael Mota · 8 min de leitura</p>
+      </div>
+      <div class="card card-sm reveal" style="transition-delay:.1s" onclick="showPage('noticias')">
+        <span class="card-badge badge-new">Novo</span>
+        <h3 class="card-title">Xbox Series X Pro é real e chega em 2027</h3>
+        <p class="card-meta">Há 4 horas · Hardware</p>
+      </div>
+      <div class="card card-sm card-sm2 reveal" style="transition-delay:.2s" onclick="showPage('esports')">
+        <span class="card-badge badge-esports">Esports</span>
+        <h3 class="card-title">LOUD vence a paiN e vai às finais do CBLOL</h3>
+        <p class="card-meta">Ontem · League of Legends</p>
+      </div>
+    </div>
+  </section>
 
-<!-- TICKER -->
-<div class="ticker">
-  <div class="ticker-inner">
-    <span class="ticker-item">⚡ DOOM: The Dark Ages — Review Completo</span>
-    <span class="ticker-item">🏆 CBLOL — Playoffs Começam Amanhã</span>
-    <span class="ticker-item">🎮 GTA VI — Data Confirmada Para Setembro</span>
-    <span class="ticker-item">🔥 Elden Ring DLC — 9.5/10 Nota Final</span>
-    <span class="ticker-item">🚀 Xbox Game Pass — 12 Jogos Novos em Junho</span>
-    <span class="ticker-item">💥 Hollow Knight 2 — Trailer Revelado na Geoff</span>
-    <!-- duplicate for seamless loop -->
-    <span class="ticker-item">⚡ DOOM: The Dark Ages — Review Completo</span>
-    <span class="ticker-item">🏆 CBLOL — Playoffs Começam Amanhã</span>
-    <span class="ticker-item">🎮 GTA VI — Data Confirmada Para Setembro</span>
-    <span class="ticker-item">🔥 Elden Ring DLC — 9.5/10 Nota Final</span>
-    <span class="ticker-item">🚀 Xbox Game Pass — 12 Jogos Novos em Junho</span>
-    <span class="ticker-item">💥 Hollow Knight 2 — Trailer Revelado na Geoff</span>
+  <section class="news-section">
+    <div class="section-label">Últimas Notícias</div>
+    <div class="news-grid">
+      <div class="news-card reveal" onclick="showPage('guias')">
+        <img class="news-img" src="https://picsum.photos/seed/n1/600/300" alt="">
+        <span class="card-badge badge-guide">Guia</span>
+        <h3 class="news-title">Como dominar o Ranked no Valorant sem enlouquecer</h3>
+        <p class="news-excerpt">Dez dicas testadas por jogadores Radiante que vão transformar sua mentalidade e sua mecânica.</p>
+        <div class="news-footer"><span class="news-author">Ana Lima · 12 mai</span><span class="news-read">Ler →</span></div>
+      </div>
+      <div class="news-card reveal" style="transition-delay:.1s" onclick="showPage('reviews')">
+        <img class="news-img" src="https://picsum.photos/seed/n2/600/300" alt="">
+        <span class="card-badge badge-review">Review</span>
+        <h3 class="news-title">Hades II: por que esse jogo está redefinindo o roguelite</h3>
+        <p class="news-excerpt">A Supergiant Games fez de novo. Uma sequência que supera o original em quase todos os aspectos.</p>
+        <div class="news-footer"><span class="news-author">Carlos Neto · 10 mai</span><span class="news-read">Ler →</span></div>
+      </div>
+      <div class="news-card reveal" style="transition-delay:.2s" onclick="showPage('noticias')">
+        <img class="news-img" src="https://picsum.photos/seed/n3/600/300" alt="">
+        <span class="card-badge badge-hot">Notícia</span>
+        <h3 class="news-title">PlayStation 6 terá retrocompatibilidade total com PS4 e PS5</h3>
+        <p class="news-excerpt">Em carta aberta à comunidade, a Sony confirma que toda a biblioteca das gerações anteriores estará disponível.</p>
+        <div class="news-footer"><span class="news-author">Juliana Félix · 8 mai</span><span class="news-read">Ler →</span></div>
+      </div>
+      <div class="news-card reveal" onclick="showPage('noticias')">
+        <img class="news-img" src="https://picsum.photos/seed/n4/600/300" alt="">
+        <span class="card-badge badge-new">Lançamento</span>
+        <h3 class="news-title">Hollow Knight: Silksong — tudo que sabemos</h3>
+        <p class="news-excerpt">Depois de anos de espera, o game finalmente foi revelado com data e parece incrível.</p>
+        <div class="news-footer"><span class="news-author">Bruno Alves · 7 mai</span><span class="news-read">Ler →</span></div>
+      </div>
+      <div class="news-card reveal" style="transition-delay:.1s" onclick="showPage('guias')">
+        <img class="news-img" src="https://picsum.photos/seed/n5/600/300" alt="">
+        <span class="card-badge badge-guide">Análise</span>
+        <h3 class="news-title">Otimize seu setup gamer sem gastar uma fortuna em 2026</h3>
+        <p class="news-excerpt">Monitor, teclado, headset, cadeira — o guia definitivo para cada faixa de orçamento no Brasil.</p>
+        <div class="news-footer"><span class="news-author">Mariana Costa · 5 mai</span><span class="news-read">Ler →</span></div>
+      </div>
+      <div class="news-card reveal" style="transition-delay:.2s" onclick="showPage('esports')">
+        <img class="news-img" src="https://picsum.photos/seed/n6/600/300" alt="">
+        <span class="card-badge badge-esports">Esports</span>
+        <h3 class="news-title">FURIA chega às quartas do Major de CS2 e emociona o Brasil</h3>
+        <p class="news-excerpt">O time brasileiro eliminou a Natus Vincere em um confronto épico de cinco mapas.</p>
+        <div class="news-footer"><span class="news-author">Pedro Lins · 3 mai</span><span class="news-read">Ler →</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="review-section">
+    <div class="section-label">Reviews Recentes</div>
+    <div class="review-grid">
+      <div class="review-card reveal" onclick="showPage('reviews')"><img class="review-thumb" src="https://picsum.photos/seed/r1/400/250" alt=""><div class="review-body"><span class="card-badge badge-review">Review</span><h3 class="review-title">Elden Ring: Shadow of the Erdtree</h3><div class="review-platform">PC · PS5 · Xbox</div><div class="score-bar"><div class="score-fill" style="width:95%"></div></div><div class="score-num">9.5</div><div class="score-label">/ 10 — Obra Prima</div></div></div>
+      <div class="review-card reveal" style="transition-delay:.1s" onclick="showPage('reviews')"><img class="review-thumb" src="https://picsum.photos/seed/r2/400/250" alt=""><div class="review-body"><span class="card-badge badge-review">Review</span><h3 class="review-title">Hades II (Early Access)</h3><div class="review-platform">PC</div><div class="score-bar"><div class="score-fill" style="width:90%"></div></div><div class="score-num">9.0</div><div class="score-label">/ 10 — Excelente</div></div></div>
+      <div class="review-card reveal" style="transition-delay:.2s" onclick="showPage('reviews')"><img class="review-thumb" src="https://picsum.photos/seed/r3/400/250" alt=""><div class="review-body"><span class="card-badge badge-review">Review</span><h3 class="review-title">DOOM: The Dark Ages</h3><div class="review-platform">PC · PS5 · Xbox</div><div class="score-bar"><div class="score-fill" style="width:88%"></div></div><div class="score-num">8.8</div><div class="score-label">/ 10 — Muito Bom</div></div></div>
+      <div class="review-card reveal" style="transition-delay:.3s" onclick="showPage('reviews')"><img class="review-thumb" src="https://picsum.photos/seed/r4/400/250" alt=""><div class="review-body"><span class="card-badge badge-review">Review</span><h3 class="review-title">Star Wars Outlaws</h3><div class="review-platform">PC · PS5 · Xbox</div><div class="score-bar"><div class="score-fill" style="width:72%"></div></div><div class="score-num">7.2</div><div class="score-label">/ 10 — Bom</div></div></div>
+    </div>
+  </section>
+
+  <section class="esports-section">
+    <div class="section-label">Esports ao Vivo</div>
+    <div class="esports-grid">
+      <div class="match-card reveal" onclick="showPage('esports')">
+        <div class="team"><div class="team-logo">🔵</div><div><div class="team-name">LOUD</div><div class="team-record">14–2</div></div></div>
+        <div class="match-center"><div class="live-badge">AO VIVO</div><div class="match-score">2<span>:</span>1</div><div class="match-game">CBLOL · Valorant</div></div>
+        <div class="team team-right"><div class="team-logo">🔴</div><div style="text-align:right"><div class="team-name">paiN</div><div class="team-record">11–5</div></div></div>
+      </div>
+      <div class="match-card reveal" style="transition-delay:.1s" onclick="showPage('esports')">
+        <div class="team"><div class="team-logo">🟡</div><div><div class="team-name">FURIA</div><div class="team-record">12–4</div></div></div>
+        <div class="match-center"><div class="live-badge">AO VIVO</div><div class="match-score">1<span>:</span>1</div><div class="match-game">ESL · CS2 Major</div></div>
+        <div class="team team-right"><div class="team-logo">🟢</div><div style="text-align:right"><div class="team-name">NaVi</div><div class="team-record">13–3</div></div></div>
+      </div>
+      <div class="match-card reveal" style="transition-delay:.2s" onclick="showPage('esports')">
+        <div class="team"><div class="team-logo">⚫</div><div><div class="team-name">Liquid</div><div class="team-record">9–7</div></div></div>
+        <div class="match-center"><div style="font-size:10px;letter-spacing:2px;color:var(--muted);font-family:'Syne Mono',monospace">AMANHÃ · 19H</div><div class="match-vs">VS</div><div class="match-game">VCT · Valorant</div></div>
+        <div class="team team-right"><div class="team-logo">🔵</div><div style="text-align:right"><div class="team-name">Sentinels</div><div class="team-record">10–6</div></div></div>
+      </div>
+      <div class="match-card reveal" style="transition-delay:.3s" onclick="showPage('esports')">
+        <div class="team"><div class="team-logo">🟣</div><div><div class="team-name">G2</div><div class="team-record">15–1</div></div></div>
+        <div class="match-center"><div style="font-size:10px;letter-spacing:2px;color:var(--muted);font-family:'Syne Mono',monospace">ENCERRADO</div><div class="match-score" style="color:var(--muted)">3<span>:</span>0</div><div class="match-game">LEC · League of Legends</div></div>
+        <div class="team team-right"><div class="team-logo">⚪</div><div style="text-align:right"><div class="team-name">FNC</div><div class="team-record">8–8</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="newsletter-cta">
+    <div class="cta-bg"></div><div class="cta-grid"></div>
+    <h2 class="cta-title reveal">FIQUE POR<br><span class="highlight">DENTRO</span></h2>
+    <p class="cta-sub reveal">Toda semana, o melhor do mundo gamer chega direto no seu e-mail. Sem spam. Só o que importa.</p>
+    <div class="cta-form reveal">
+      <input type="email" placeholder="seu@email.com" id="ctaEmail">
+      <button onclick="subscribe('ctaEmail',this)">Assinar Agora</button>
+    </div>
+    <div class="cta-perks reveal">
+      <span class="perk">Toda sexta-feira</span>
+      <span class="perk">Gratuito para sempre</span>
+      <span class="perk">Cancele quando quiser</span>
+    </div>
+  </section>
+</div>
+
+<!-- ==================== NOTÍCIAS ==================== -->
+<div id="page-noticias" class="page">
+  <div class="subpage">
+    <div class="subpage-header">
+      <div class="section-label">Todas as Notícias</div>
+      <h1 class="subpage-title">NOTÍ<span>CIAS</span></h1>
+      <p class="subpage-desc">Cobertura diária do universo gamer — lançamentos, vazamentos, atualizações e tudo que importa no mundo dos games.</p>
+    </div>
+    <div class="article-list">
+      <div class="article-item"><img class="article-thumb" src="https://picsum.photos/seed/a1/200/120" alt=""><div class="article-info"><div class="card-badge badge-hot" style="margin-bottom:8px">Em Alta</div><div class="article-title">GTA VI finalmente tem data: prepare seu PC e suas economias</div><p class="article-excerpt">A Rockstar Games confirmou oficialmente a data de lançamento do jogo mais esperado da história dos games. Setembro chegará com tudo.</p><div class="article-meta">Rafael Mota · 23 mai 2026 · 8 min</div></div></div>
+      <div class="article-item"><img class="article-thumb" src="https://picsum.photos/seed/a2/200/120" alt=""><div class="article-info"><div class="card-badge badge-new" style="margin-bottom:8px">Hardware</div><div class="article-title">Xbox Series X Pro é real e chegará em 2027 com upscaling por IA</div><p class="article-excerpt">Microsoft confirma nova versão do console com chip dedicado para inteligência artificial e resolução 8K nativa em alguns títulos.</p><div class="article-meta">Juliana Félix · 22 mai 2026 · 5 min</div></div></div>
+      <div class="article-item"><img class="article-thumb" src="https://picsum.photos/seed/a3/200/120" alt=""><div class="article-info"><div class="card-badge badge-new" style="margin-bottom:8px">Lançamento</div><div class="article-title">Hollow Knight: Silksong — tudo que sabemos sobre o jogo mais esperado</div><p class="article-excerpt">Depois de anos de espera e memes, o game finalmente foi revelado com janela de lançamento e um trailer extenso.</p><div class="article-meta">Bruno Alves · 20 mai 2026 · 6 min</div></div></div>
+      <div class="article-item"><img class="article-thumb" src="https://picsum.photos/seed/a4/200/120" alt=""><div class="article-info"><div class="card-badge badge-hot" style="margin-bottom:8px">Notícia</div><div class="article-title">PlayStation 6 terá retrocompatibilidade total com PS4 e PS5</div><p class="article-excerpt">Sony confirma em carta aberta que toda a biblioteca das gerações anteriores estará disponível no novo console sem custo adicional.</p><div class="article-meta">Mariana Costa · 18 mai 2026 · 4 min</div></div></div>
+      <div class="article-item"><img class="article-thumb" src="https://picsum.photos/seed/a5/200/120" alt=""><div class="article-info"><div class="card-badge badge-new" style="margin-bottom:8px">Atualização</div><div class="article-title">Fortnite Capítulo 6: novo mapa e crossover com universo Marvel revelados</div><p class="article-excerpt">A Epic Games surpreendeu com um evento ao vivo que destruiu o mapa atual e revelou uma colaboração histórica com a Marvel.</p><div class="article-meta">Pedro Lins · 15 mai 2026 · 3 min</div></div></div>
+      <div class="article-item"><img class="article-thumb" src="https://picsum.photos/seed/a6/200/120" alt=""><div class="article-info"><div class="card-badge badge-hot" style="margin-bottom:8px">Indústria</div><div class="article-title">Microsoft compra mais um estúdio: desta vez é a vez da Avalanche Studios</div><p class="article-excerpt">A gigante de Redmond segue sua estratégia de expansão adquirindo o estúdio responsável por Just Cause e theHunter.</p><div class="article-meta">Carlos Neto · 12 mai 2026 · 5 min</div></div></div>
+    </div>
   </div>
 </div>
 
-<!-- FEATURED -->
-<section class="featured" id="noticias">
-  <div class="section-label">Destaques da Semana</div>
-  <div class="featured-grid">
-    <div class="card card-main reveal">
-      <span class="card-badge badge-hot">🔥 Em Alta</span>
-      <h2 class="card-title">GTA VI finalmente tem data: prepare seu PC e suas economias</h2>
-      <p class="card-meta">Há 2 horas · Por Rafael Mota · 8 min de leitura</p>
+<!-- ==================== REVIEWS ==================== -->
+<div id="page-reviews" class="page">
+  <div class="subpage">
+    <div class="subpage-header">
+      <div class="section-label">Análises Completas</div>
+      <h1 class="subpage-title">RE<span>VIEWS</span></h1>
+      <p class="subpage-desc">Reviews honestos, aprofundados e sem patrocínio. Nossa nota vai de 1 a 10 e consideramos gameplay, história, áudio e performance.</p>
     </div>
-    <div class="card card-sm reveal" style="transition-delay:0.1s">
-      <span class="card-badge badge-new">Novo</span>
-      <h3 class="card-title">Xbox Series X Pro é real e chega em 2027</h3>
-      <p class="card-meta">Há 4 horas · Hardware</p>
-    </div>
-    <div class="card card-sm card-sm2 reveal" style="transition-delay:0.2s">
-      <span class="card-badge badge-esports">Esports</span>
-      <h3 class="card-title">LOUD vence a paiN e vai às finais do CBLOL</h3>
-      <p class="card-meta">Ontem · League of Legends</p>
-    </div>
-  </div>
-</section>
-
-<!-- NEWS -->
-<section class="news-section">
-  <div class="section-label">Últimas Notícias</div>
-  <div class="news-grid">
-
-    <div class="news-card reveal">
-      <img class="news-img" src="https://picsum.photos/seed/n1/600/300" alt="">
-      <span class="card-badge badge-guide">Guia</span>
-      <h3 class="news-title">Como dominar o Ranked no Valorant sem enlouquecer</h3>
-      <p class="news-excerpt">Dez dicas testadas por jogadores Radiante que vão transformar sua mentalidade e sua mecânica de uma vez por todas.</p>
-      <div class="news-footer">
-        <span class="news-author">Ana Lima · 12 mai</span>
-        <span class="news-read">Ler →</span>
-      </div>
-    </div>
-
-    <div class="news-card reveal" style="transition-delay:0.1s">
-      <img class="news-img" src="https://picsum.photos/seed/n2/600/300" alt="">
-      <span class="card-badge badge-review">Review</span>
-      <h3 class="news-title">Hades II: por que esse jogo está redefinindo o roguelite</h3>
-      <p class="news-excerpt">A Supergiant Games fez de novo. Uma sequência que supera o original em quase todos os aspectos — e ainda está em acesso antecipado.</p>
-      <div class="news-footer">
-        <span class="news-author">Carlos Neto · 10 mai</span>
-        <span class="news-read">Ler →</span>
-      </div>
-    </div>
-
-    <div class="news-card reveal" style="transition-delay:0.2s">
-      <img class="news-img" src="https://picsum.photos/seed/n3/600/300" alt="">
-      <span class="card-badge badge-hot">Notícia</span>
-      <h3 class="news-title">PlayStation 6 terá retrocompatibilidade total com PS4 e PS5</h3>
-      <p class="news-excerpt">Em carta aberta à comunidade, a Sony confirma que toda a biblioteca das gerações anteriores estará disponível no novo console.</p>
-      <div class="news-footer">
-        <span class="news-author">Juliana Félix · 8 mai</span>
-        <span class="news-read">Ler →</span>
-      </div>
-    </div>
-
-    <div class="news-card reveal" style="transition-delay:0s">
-      <img class="news-img" src="https://picsum.photos/seed/n4/600/300" alt="">
-      <span class="card-badge badge-new">Lançamento</span>
-      <h3 class="news-title">Hollow Knight: Silksong — tudo que sabemos sobre o jogo mais esperado</h3>
-      <p class="news-excerpt">Depois de anos de espera e memes, o game finalmente foi revelado com data e parece incrível.</p>
-      <div class="news-footer">
-        <span class="news-author">Bruno Alves · 7 mai</span>
-        <span class="news-read">Ler →</span>
-      </div>
-    </div>
-
-    <div class="news-card reveal" style="transition-delay:0.1s">
-      <img class="news-img" src="https://picsum.photos/seed/n5/600/300" alt="">
-      <span class="card-badge badge-guide">Análise</span>
-      <h3 class="news-title">Otimize seu setup gamer sem gastar uma fortuna em 2026</h3>
-      <p class="news-excerpt">Monitor, teclado, headset, cadeira — montamos o guia definitivo para cada faixa de orçamento disponível no mercado brasileiro.</p>
-      <div class="news-footer">
-        <span class="news-author">Mariana Costa · 5 mai</span>
-        <span class="news-read">Ler →</span>
-      </div>
-    </div>
-
-    <div class="news-card reveal" style="transition-delay:0.2s">
-      <img class="news-img" src="https://picsum.photos/seed/n6/600/300" alt="">
-      <span class="card-badge badge-esports">Esports</span>
-      <h3 class="news-title">FURIA chega às quartas do Major de CS2 e emociona o Brasil</h3>
-      <p class="news-excerpt">O time brasileiro eliminou a Natus Vincere em um confronto épico de cinco mapas que durou quase três horas.</p>
-      <div class="news-footer">
-        <span class="news-author">Pedro Lins · 3 mai</span>
-        <span class="news-read">Ler →</span>
-      </div>
+    <div class="review-grid" style="margin-bottom:2px">
+      <div class="review-card"><img class="review-thumb" src="https://picsum.photos/seed/rv1/400/250" alt=""><div class="review-body"><span class="card-badge badge-review">Review</span><h3 class="review-title">Elden Ring: Shadow of the Erdtree</h3><div class="review-platform">PC · PS5 · Xbox · 23 mai 2026</div><div class="score-bar"><div class="score-fill" style="width:95%"></div></div><div class="score-num">9.5</div><div class="score-label">/ 10 — Obra Prima</div></div></div>
+      <div class="review-card"><img class="review-thumb" src="https://picsum.photos/seed/rv2/400/250" alt=""><div class="review-body"><span class="card-badge badge-review">Review</span><h3 class="review-title">Hades II (Early Access)</h3><div class="review-platform">PC · 20 mai 2026</div><div class="score-bar"><div class="score-fill" style="width:90%"></div></div><div class="score-num">9.0</div><div class="score-label">/ 10 — Excelente</div></div></div>
+      <div class="review-card"><img class="review-thumb" src="https://picsum.photos/seed/rv3/400/250" alt=""><div class="review-body"><span class="card-badge badge-review">Review</span><h3 class="review-title">DOOM: The Dark Ages</h3><div class="review-platform">PC · PS5 · Xbox · 15 mai 2026</div><div class="score-bar"><div class="score-fill" style="width:88%"></div></div><div class="score-num">8.8</div><div class="score-label">/ 10 — Muito Bom</div></div></div>
+      <div class="review-card"><img class="review-thumb" src="https://picsum.photos/seed/rv4/400/250" alt=""><div class="review-body"><span class="card-badge badge-review">Review</span><h3 class="review-title">Star Wars Outlaws</h3><div class="review-platform">PC · PS5 · Xbox · 10 mai 2026</div><div class="score-bar"><div class="score-fill" style="width:72%"></div></div><div class="score-num">7.2</div><div class="score-label">/ 10 — Bom</div></div></div>
+      <div class="review-card"><img class="review-thumb" src="https://picsum.photos/seed/rv5/400/250" alt=""><div class="review-body"><span class="card-badge badge-review">Review</span><h3 class="review-title">Manor Lords</h3><div class="review-platform">PC · 5 mai 2026</div><div class="score-bar"><div class="score-fill" style="width:82%"></div></div><div class="score-num">8.2</div><div class="score-label">/ 10 — Muito Bom</div></div></div>
+      <div class="review-card"><img class="review-thumb" src="https://picsum.photos/seed/rv6/400/250" alt=""><div class="review-body"><span class="card-badge badge-review">Review</span><h3 class="review-title">Senua's Saga: Hellblade II</h3><div class="review-platform">PC · Xbox · 1 mai 2026</div><div class="score-bar"><div class="score-fill" style="width:85%"></div></div><div class="score-num">8.5</div><div class="score-label">/ 10 — Muito Bom</div></div></div>
+      <div class="review-card"><img class="review-thumb" src="https://picsum.photos/seed/rv7/400/250" alt=""><div class="review-body"><span class="card-badge badge-review">Review</span><h3 class="review-title">Animal Well</h3><div class="review-platform">PC · PS5 · 28 abr 2026</div><div class="score-bar"><div class="score-fill" style="width:91%"></div></div><div class="score-num">9.1</div><div class="score-label">/ 10 — Excelente</div></div></div>
+      <div class="review-card"><img class="review-thumb" src="https://picsum.photos/seed/rv8/400/250" alt=""><div class="review-body"><span class="card-badge badge-review">Review</span><h3 class="review-title">Dragon's Dogma 2</h3><div class="review-platform">PC · PS5 · Xbox · 20 abr 2026</div><div class="score-bar"><div class="score-fill" style="width:78%"></div></div><div class="score-num">7.8</div><div class="score-label">/ 10 — Bom</div></div></div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- REVIEWS -->
-<section class="review-section" id="reviews">
-  <div class="section-label">Reviews Recentes</div>
-  <div class="review-grid">
-
-    <div class="review-card reveal">
-      <img class="review-thumb" src="https://picsum.photos/seed/r1/400/250" alt="">
-      <div class="review-body">
-        <span class="card-badge badge-review">Review</span>
-        <h3 class="review-title">Elden Ring: Shadow of the Erdtree</h3>
-        <div class="review-platform">PC · PS5 · Xbox</div>
-        <div class="score-bar"><div class="score-fill" style="width:95%"></div></div>
-        <div class="score-num">9.5</div>
-        <div class="score-label">/ 10 — Obra Prima</div>
-      </div>
+<!-- ==================== ESPORTS ==================== -->
+<div id="page-esports" class="page">
+  <div class="subpage">
+    <div class="subpage-header">
+      <div class="section-label">Cobertura Competitiva</div>
+      <h1 class="subpage-title">ES<span>PORTS</span></h1>
+      <p class="subpage-desc">Resultados, tabelas, análises de draft e tudo sobre a cena competitiva brasileira e mundial.</p>
     </div>
-
-    <div class="review-card reveal" style="transition-delay:0.1s">
-      <img class="review-thumb" src="https://picsum.photos/seed/r2/400/250" alt="">
-      <div class="review-body">
-        <span class="card-badge badge-review">Review</span>
-        <h3 class="review-title">Hades II (Early Access)</h3>
-        <div class="review-platform">PC</div>
-        <div class="score-bar"><div class="score-fill" style="width:90%"></div></div>
-        <div class="score-num">9.0</div>
-        <div class="score-label">/ 10 — Excelente</div>
-      </div>
+    <div class="section-label">Partidas ao Vivo & Recentes</div>
+    <div class="esports-grid" style="margin-bottom:40px">
+      <div class="match-card"><div class="team"><div class="team-logo">🔵</div><div><div class="team-name">LOUD</div><div class="team-record">14–2</div></div></div><div class="match-center"><div class="live-badge">AO VIVO</div><div class="match-score">2<span>:</span>1</div><div class="match-game">CBLOL · Valorant</div></div><div class="team team-right"><div class="team-logo">🔴</div><div style="text-align:right"><div class="team-name">paiN</div><div class="team-record">11–5</div></div></div></div>
+      <div class="match-card"><div class="team"><div class="team-logo">🟡</div><div><div class="team-name">FURIA</div><div class="team-record">12–4</div></div></div><div class="match-center"><div class="live-badge">AO VIVO</div><div class="match-score">1<span>:</span>1</div><div class="match-game">ESL · CS2 Major</div></div><div class="team team-right"><div class="team-logo">🟢</div><div style="text-align:right"><div class="team-name">NaVi</div><div class="team-record">13–3</div></div></div></div>
+      <div class="match-card"><div class="team"><div class="team-logo">⚫</div><div><div class="team-name">Liquid</div><div class="team-record">9–7</div></div></div><div class="match-center"><div style="font-size:10px;letter-spacing:2px;color:var(--muted);font-family:'Syne Mono',monospace">AMANHÃ · 19H</div><div class="match-vs">VS</div><div class="match-game">VCT · Valorant</div></div><div class="team team-right"><div class="team-logo">🔵</div><div style="text-align:right"><div class="team-name">Sentinels</div><div class="team-record">10–6</div></div></div></div>
+      <div class="match-card"><div class="team"><div class="team-logo">🟣</div><div><div class="team-name">G2</div><div class="team-record">15–1</div></div></div><div class="match-center"><div style="font-size:10px;letter-spacing:2px;color:var(--muted);font-family:'Syne Mono',monospace">ENCERRADO</div><div class="match-score" style="color:var(--muted)">3<span>:</span>0</div><div class="match-game">LEC · League of Legends</div></div><div class="team team-right"><div class="team-logo">⚪</div><div style="text-align:right"><div class="team-name">FNC</div><div class="team-record">8–8</div></div></div></div>
     </div>
-
-    <div class="review-card reveal" style="transition-delay:0.2s">
-      <img class="review-thumb" src="https://picsum.photos/seed/r3/400/250" alt="">
-      <div class="review-body">
-        <span class="card-badge badge-review">Review</span>
-        <h3 class="review-title">DOOM: The Dark Ages</h3>
-        <div class="review-platform">PC · PS5 · Xbox</div>
-        <div class="score-bar"><div class="score-fill" style="width:88%"></div></div>
-        <div class="score-num">8.8</div>
-        <div class="score-label">/ 10 — Muito Bom</div>
-      </div>
+    <div class="section-label">Últimas do Cenário</div>
+    <div class="article-list">
+      <div class="article-item"><img class="article-thumb" src="https://picsum.photos/seed/e1/200/120" alt=""><div class="article-info"><div class="card-badge badge-esports" style="margin-bottom:8px">CBLOL</div><div class="article-title">LOUD vence paiN e vai às finais do CBLOL Split 1</div><p class="article-excerpt">Em uma série emocionante de cinco mapas, a LOUD confirmou sua superioridade e agendou encontro com a RED Canids na grande final.</p><div class="article-meta">Equipe Respawn · 22 mai 2026</div></div></div>
+      <div class="article-item"><img class="article-thumb" src="https://picsum.photos/seed/e2/200/120" alt=""><div class="article-info"><div class="card-badge badge-esports" style="margin-bottom:8px">CS2 Major</div><div class="article-title">FURIA chega às quartas e faz história no Major de Paris</div><p class="article-excerpt">O time brasileiro eliminou a Natus Vincere em um confronto histórico e agora enfrenta a Team Spirit nas quartas de final.</p><div class="article-meta">Pedro Lins · 20 mai 2026</div></div></div>
+      <div class="article-item"><img class="article-thumb" src="https://picsum.photos/seed/e3/200/120" alt=""><div class="article-info"><div class="card-badge badge-esports" style="margin-bottom:8px">VCT</div><div class="article-title">Sentinels surpreende e chega invicta ao VCT Americas</div><p class="article-excerpt">Com TenZ em grande fase, a equipe norte-americana vem dominando o torneio continental e é favorita ao título.</p><div class="article-meta">Ana Lima · 18 mai 2026</div></div></div>
     </div>
-
-    <div class="review-card reveal" style="transition-delay:0.3s">
-      <img class="review-thumb" src="https://picsum.photos/seed/r4/400/250" alt="">
-      <div class="review-body">
-        <span class="card-badge badge-review">Review</span>
-        <h3 class="review-title">Star Wars Outlaws</h3>
-        <div class="review-platform">PC · PS5 · Xbox</div>
-        <div class="score-bar"><div class="score-fill" style="width:72%"></div></div>
-        <div class="score-num">7.2</div>
-        <div class="score-label">/ 10 — Bom</div>
-      </div>
-    </div>
-
   </div>
-</section>
+</div>
 
-<!-- ESPORTS -->
-<section class="esports-section" id="esports">
-  <div class="section-label">Esports ao Vivo</div>
-  <div class="esports-grid">
-
-    <div class="match-card reveal">
-      <div class="team">
-        <div class="team-logo">🔵</div>
-        <div>
-          <div class="team-name">LOUD</div>
-          <div class="team-record">14–2</div>
-        </div>
-      </div>
-      <div class="match-center">
-        <div class="live-badge">AO VIVO</div>
-        <div class="match-score">2 <span>:</span> 1</div>
-        <div class="match-game">CBLOL · Valorant</div>
-      </div>
-      <div class="team team-right">
-        <div class="team-logo">🔴</div>
-        <div style="text-align:right">
-          <div class="team-name">paiN</div>
-          <div class="team-record">11–5</div>
-        </div>
-      </div>
+<!-- ==================== GUIAS ==================== -->
+<div id="page-guias" class="page">
+  <div class="subpage">
+    <div class="subpage-header">
+      <div class="section-label">Dicas & Tutoriais</div>
+      <h1 class="subpage-title">GU<span>IAS</span></h1>
+      <p class="subpage-desc">Tudo para você jogar melhor — builds, estratégias, dicas de setup e guias para iniciantes e veteranos.</p>
     </div>
-
-    <div class="match-card reveal" style="transition-delay:0.1s">
-      <div class="team">
-        <div class="team-logo">🟡</div>
-        <div>
-          <div class="team-name">FURIA</div>
-          <div class="team-record">12–4</div>
-        </div>
-      </div>
-      <div class="match-center">
-        <div class="live-badge">AO VIVO</div>
-        <div class="match-score">1 <span>:</span> 1</div>
-        <div class="match-game">ESL · CS2 Major</div>
-      </div>
-      <div class="team team-right">
-        <div class="team-logo">🟢</div>
-        <div style="text-align:right">
-          <div class="team-name">NaVi</div>
-          <div class="team-record">13–3</div>
-        </div>
-      </div>
+    <div class="article-list">
+      <div class="article-item"><img class="article-thumb" src="https://picsum.photos/seed/g1/200/120" alt=""><div class="article-info"><div class="card-badge badge-guide" style="margin-bottom:8px">Valorant</div><div class="article-title">Como dominar o Ranked no Valorant sem enlouquecer</div><p class="article-excerpt">Dez dicas testadas por jogadores Radiante que vão transformar sua mentalidade e sua mecânica de uma vez por todas.</p><div class="article-meta">Ana Lima · 12 mai 2026 · 10 min</div></div></div>
+      <div class="article-item"><img class="article-thumb" src="https://picsum.photos/seed/g2/200/120" alt=""><div class="article-info"><div class="card-badge badge-guide" style="margin-bottom:8px">Setup</div><div class="article-title">Otimize seu setup gamer sem gastar uma fortuna em 2026</div><p class="article-excerpt">Monitor, teclado, headset, cadeira — montamos o guia definitivo para cada faixa de orçamento disponível no mercado brasileiro.</p><div class="article-meta">Mariana Costa · 5 mai 2026 · 12 min</div></div></div>
+      <div class="article-item"><img class="article-thumb" src="https://picsum.photos/seed/g3/200/120" alt=""><div class="article-info"><div class="card-badge badge-guide" style="margin-bottom:8px">Elden Ring</div><div class="article-title">Build definitiva para o DLC Shadow of the Erdtree — nível 150</div><p class="article-excerpt">Testamos dezenas de combinações e encontramos a build mais equilibrada para encarar os chefes mais difíceis do DLC.</p><div class="article-meta">Carlos Neto · 2 mai 2026 · 8 min</div></div></div>
+      <div class="article-item"><img class="article-thumb" src="https://picsum.photos/seed/g4/200/120" alt=""><div class="article-info"><div class="card-badge badge-guide" style="margin-bottom:8px">CS2</div><div class="article-title">Configurações de mira e sensibilidade dos prós de CS2 em 2026</div><p class="article-excerpt">Compilamos as configs de 20 dos melhores jogadores do mundo para você encontrar o setup ideal para sua jogatina.</p><div class="article-meta">Pedro Lins · 28 abr 2026 · 7 min</div></div></div>
+      <div class="article-item"><img class="article-thumb" src="https://picsum.photos/seed/g5/200/120" alt=""><div class="article-info"><div class="card-badge badge-guide" style="margin-bottom:8px">PC Gaming</div><div class="article-title">Como montar um PC gamer do zero em 2026 — guia completo</div><p class="article-excerpt">Do processador à fonte — tudo que você precisa saber para montar seu primeiro PC ou dar upgrade na sua máquina atual.</p><div class="article-meta">Bruno Alves · 20 abr 2026 · 15 min</div></div></div>
+      <div class="article-item"><img class="article-thumb" src="https://picsum.photos/seed/g6/200/120" alt=""><div class="article-info"><div class="card-badge badge-guide" style="margin-bottom:8px">Iniciantes</div><div class="article-title">10 jogos essenciais para quem está começando no mundo gamer</div><p class="article-excerpt">Uma seleção cuidadosa de jogos acessíveis, envolventes e com boa curva de aprendizado para novos jogadores.</p><div class="article-meta">Juliana Félix · 15 abr 2026 · 6 min</div></div></div>
     </div>
-
-    <div class="match-card reveal" style="transition-delay:0.2s">
-      <div class="team">
-        <div class="team-logo">⚫</div>
-        <div>
-          <div class="team-name">Liquid</div>
-          <div class="team-record">9–7</div>
-        </div>
-      </div>
-      <div class="match-center">
-        <div style="font-size:10px;letter-spacing:2px;color:var(--muted);font-family:'Syne Mono',monospace">AMANHÃ · 19H</div>
-        <div class="match-vs">VS</div>
-        <div class="match-game">VCT · Valorant</div>
-      </div>
-      <div class="team team-right">
-        <div class="team-logo">🔵</div>
-        <div style="text-align:right">
-          <div class="team-name">Sentinels</div>
-          <div class="team-record">10–6</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="match-card reveal" style="transition-delay:0.3s">
-      <div class="team">
-        <div class="team-logo">🟣</div>
-        <div>
-          <div class="team-name">G2</div>
-          <div class="team-record">15–1</div>
-        </div>
-      </div>
-      <div class="match-center">
-        <div style="font-size:10px;letter-spacing:2px;color:var(--muted);font-family:'Syne Mono',monospace">ENCERRADO</div>
-        <div class="match-score" style="color:var(--muted)">3 <span>:</span> 0</div>
-        <div class="match-game">LEC · League of Legends</div>
-      </div>
-      <div class="team team-right">
-        <div class="team-logo">⚪</div>
-        <div style="text-align:right">
-          <div class="team-name">FNC</div>
-          <div class="team-record">8–8</div>
-        </div>
-      </div>
-    </div>
-
   </div>
-</section>
+</div>
 
-<!-- NEWSLETTER CTA -->
-<section class="newsletter-cta" id="newsletter">
-  <div class="cta-bg"></div>
-  <div class="cta-grid"></div>
-  <h2 class="cta-title reveal">
-    FIQUE POR<br>
-    <span class="highlight">DENTRO</span>
-  </h2>
-  <p class="cta-sub reveal">
-    Toda semana, o melhor do mundo gamer chega direto no seu e-mail.
-    Sem spam. Sem enrolação. Só o que importa.
-  </p>
-  <div class="cta-form reveal">
-    <input type="email" placeholder="seu@email.com">
-    <button>Assinar Agora</button>
+<!-- ==================== NEWSLETTER ==================== -->
+<div id="page-newsletter" class="page">
+  <div class="subpage">
+    <div class="subpage-header">
+      <div class="section-label">Fique por Dentro</div>
+      <h1 class="subpage-title">AS<span>SINE</span></h1>
+      <p class="subpage-desc">Toda sexta-feira, uma edição completa com as melhores notícias, reviews e análises da semana — gratuito e sem spam.</p>
+    </div>
+    <div class="newsletter-cta" style="border-radius:0;margin-bottom:40px">
+      <div class="cta-bg"></div><div class="cta-grid"></div>
+      <h2 class="cta-title">TODA SEMANA<br><span class="highlight">NO SEU EMAIL</span></h2>
+      <p class="cta-sub">Junte-se a mais de 48.000 gamers brasileiros que já recebem a Respawn toda semana.</p>
+      <div class="cta-form">
+        <input type="email" placeholder="seu@email.com" id="nlEmail">
+        <button onclick="subscribe('nlEmail',this)">Assinar Grátis</button>
+      </div>
+      <div class="cta-perks">
+        <span class="perk">Toda sexta-feira</span>
+        <span class="perk">100% Gratuito</span>
+        <span class="perk">Sem spam</span>
+        <span class="perk">Cancele quando quiser</span>
+      </div>
+    </div>
+    <div class="section-label">O que você recebe</div>
+    <div class="news-grid" style="margin-bottom:0">
+      <div class="news-card"><div class="card-badge badge-hot" style="margin-bottom:12px">🔥 Notícias</div><h3 class="news-title">As principais notícias da semana</h3><p class="news-excerpt">Resumo curado de tudo que aconteceu no mundo dos games sem você precisar gastar horas lendo sites.</p></div>
+      <div class="news-card"><div class="card-badge badge-review" style="margin-bottom:12px">⭐ Reviews</div><h3 class="news-title">Reviews e recomendações</h3><p class="news-excerpt">Vale a pena comprar? Nossa equipe testa e avalia para você não jogar dinheiro fora.</p></div>
+      <div class="news-card"><div class="card-badge badge-esports" style="margin-bottom:12px">🏆 Esports</div><h3 class="news-title">Resultados e análises competitivas</h3><p class="news-excerpt">CBLOL, CS2, Valorant, LoL — todos os resultados e análises do cenário competitivo.</p></div>
+    </div>
   </div>
-  <div class="cta-perks reveal">
-    <span class="perk">Toda sexta-feira</span>
-    <span class="perk">Gratuito para sempre</span>
-    <span class="perk">Cancele quando quiser</span>
+</div>
+
+<!-- ==================== SOBRE ==================== -->
+<div id="page-sobre" class="page">
+  <div class="subpage">
+    <div class="subpage-header">
+      <div class="section-label">Quem Somos</div>
+      <h1 class="subpage-title">SO<span>BRE</span></h1>
+    </div>
+    <div class="sobre-grid">
+      <div class="sobre-text">
+        <p>A <strong style="color:var(--neon)">RESPAWN</strong> nasceu em 2019 com uma missão simples: criar a newsletter gamer que a gente mesmo queria receber. Sem aquela enrolação de portais gigantes, sem clickbait, sem pauta patrocinada disfarçada de conteúdo.</p>
+        <p>Toda semana, nossa equipe de redatores e analistas passa a semana inteira vasculhando o universo dos games para entregar o que realmente importa — curado, contextualizado e escrito por quem joga de verdade.</p>
+        <p>Hoje somos mais de 48.000 inscritos e crescemos com base em recomendação boca a boca. Não temos investidor, não temos patrocinador obrigatório. Somos sustentados pelos nossos leitores e por parcerias transparentes com as marcas que realmente acreditamos.</p>
+        <p>Se você acredita que o jornalismo gamer pode ser honesto, aprofundado e, ao mesmo tempo, divertido de ler — você está no lugar certo.</p>
+      </div>
+      <div>
+        <div class="info-box"><p>📍 <strong>Sede:</strong> São Paulo, Brasil<br>📅 <strong>Fundada:</strong> Março de 2019<br>✉️ <strong>Edições publicadas:</strong> 342<br>👥 <strong>Inscritos:</strong> 48.000+<br>🏆 <strong>Prêmio:</strong> Melhor Newsletter Gamer BR 2024</p></div>
+      </div>
+    </div>
+    <div class="section-label">Nossa Equipe</div>
+    <div class="team-grid">
+      <div class="team-card"><div class="team-avatar">👾</div><div class="team-name2">Rafael Mota</div><div class="team-role">Editor-Chefe</div><p class="team-bio">15 anos de jornalismo gamer. Especialista em RPGs e jogos de mundo aberto. Provavelmente está jogando Elden Ring agora.</p></div>
+      <div class="team-card"><div class="team-avatar">🎮</div><div class="team-name2">Ana Lima</div><div class="team-role">Editora de Esports</div><p class="team-bio">Ex-jogadora profissional de Valorant. Cobre a cena competitiva nacional e internacional há 6 anos.</p></div>
+      <div class="team-card"><div class="team-avatar">🕹️</div><div class="team-name2">Carlos Neto</div><div class="team-role">Crítico de Games</div><p class="team-bio">Platina em mais de 200 jogos. Se um game tem lore, ele leu tudo. Especialista em souls-likes e metroidvanias.</p></div>
+      <div class="team-card"><div class="team-avatar">💻</div><div class="team-name2">Juliana Félix</div><div class="team-role">Tech & Hardware</div><p class="team-bio">Engenheira de computação e gamer raiz. Benchmarks, análises de GPU e tudo sobre otimização de PC.</p></div>
+      <div class="team-card"><div class="team-avatar">🏆</div><div class="team-name2">Pedro Lins</div><div class="team-role">Repórter</div><p class="team-bio">Cobre eventos presenciais, entrevista devs e está sempre na primeira fila dos torneios de CS2 e LoL.</p></div>
+      <div class="team-card"><div class="team-avatar">🎨</div><div class="team-name2">Mariana Costa</div><div class="team-role">Design & Guias</div><p class="team-bio">Game designer frustrada que virou jornalista. Especialista em jogos indie e nos guias mais completos da internet.</p></div>
+    </div>
   </div>
-</section>
+</div>
+
+<!-- ==================== ARQUIVO ==================== -->
+<div id="page-arquivo" class="page">
+  <div class="subpage">
+    <div class="subpage-header">
+      <div class="section-label">Edições Anteriores</div>
+      <h1 class="subpage-title">AR<span>QUIVO</span></h1>
+      <p class="subpage-desc">Acesse todas as edições anteriores da newsletter RESPAWN desde o início.</p>
+    </div>
+    <div class="archive-months">
+      <div><div class="archive-month-title">Maio 2026</div><div class="archive-list">
+        <div class="archive-item"><div><div class="archive-item-title">Edição #042 — GTA VI, Xbox Pro e CBLOL</div><div class="archive-item-date">23 mai 2026</div></div><span class="archive-arrow">→</span></div>
+        <div class="archive-item"><div><div class="archive-item-title">Edição #041 — Elden Ring DLC e CS2 Major</div><div class="archive-item-date">16 mai 2026</div></div><span class="archive-arrow">→</span></div>
+        <div class="archive-item"><div><div class="archive-item-title">Edição #040 — Hades II e Nintendo Direct</div><div class="archive-item-date">9 mai 2026</div></div><span class="archive-arrow">→</span></div>
+        <div class="archive-item"><div><div class="archive-item-title">Edição #039 — PlayStation 6 revelado</div><div class="archive-item-date">2 mai 2026</div></div><span class="archive-arrow">→</span></div>
+      </div></div>
+      <div><div class="archive-month-title">Abril 2026</div><div class="archive-list">
+        <div class="archive-item"><div><div class="archive-item-title">Edição #038 — Dragon's Dogma 2 e VCT</div><div class="archive-item-date">25 abr 2026</div></div><span class="archive-arrow">→</span></div>
+        <div class="archive-item"><div><div class="archive-item-title">Edição #037 — Animal Well e FURIA no Major</div><div class="archive-item-date">18 abr 2026</div></div><span class="archive-arrow">→</span></div>
+        <div class="archive-item"><div><div class="archive-item-title">Edição #036 — Silksong confirmado e mais</div><div class="archive-item-date">11 abr 2026</div></div><span class="archive-arrow">→</span></div>
+        <div class="archive-item"><div><div class="archive-item-title">Edição #035 — Review: Stellar Blade</div><div class="archive-item-date">4 abr 2026</div></div><span class="archive-arrow">→</span></div>
+      </div></div>
+      <div><div class="archive-month-title">Março 2026</div><div class="archive-list">
+        <div class="archive-item"><div><div class="archive-item-title">Edição #034 — GDC 2026: os anúncios</div><div class="archive-item-date">28 mar 2026</div></div><span class="archive-arrow">→</span></div>
+        <div class="archive-item"><div><div class="archive-item-title">Edição #033 — DOOM: The Dark Ages revelado</div><div class="archive-item-date">21 mar 2026</div></div><span class="archive-arrow">→</span></div>
+        <div class="archive-item"><div><div class="archive-item-title">Edição #032 — Início da temporada CBLOL</div><div class="archive-item-date">14 mar 2026</div></div><span class="archive-arrow">→</span></div>
+        <div class="archive-item"><div><div class="archive-item-title">Edição #031 — Review: Avowed</div><div class="archive-item-date">7 mar 2026</div></div><span class="archive-arrow">→</span></div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ANUNCIAR ==================== -->
+<div id="page-anunciar" class="page">
+  <div class="subpage">
+    <div class="subpage-header">
+      <div class="section-label">Publicidade</div>
+      <h1 class="subpage-title">ANUN<span>CIAR</span></h1>
+      <p class="subpage-desc">Alcance mais de 48.000 gamers brasileiros engajados toda semana. Nossa audiência é qualificada, ativa e apaixonada por games.</p>
+    </div>
+    <div class="info-box" style="margin-bottom:40px"><p>📊 <strong>Taxa de abertura média: 42%</strong> — muito acima da média do mercado (21%). Nossos leitores leem de verdade.</p></div>
+    <div class="section-label">Pacotes de Publicidade</div>
+    <div class="ad-packages">
+      <div class="ad-pkg">
+        <div class="pkg-name">Starter</div>
+        <div class="pkg-price">R$490</div>
+        <div class="pkg-price-sub">por edição</div>
+        <ul class="pkg-features">
+          <li>1 menção no rodapé da newsletter</li>
+          <li>Link para seu site ou produto</li>
+          <li>Alcance de ~48.000 leitores</li>
+          <li>Relatório de cliques</li>
+        </ul>
+        <button class="btn-neon" style="width:100%" onclick="showPage('contato')">Solicitar</button>
+      </div>
+      <div class="ad-pkg featured-pkg">
+        <div class="pkg-badge">Mais Popular</div>
+        <div class="pkg-name">Pro</div>
+        <div class="pkg-price">R$990</div>
+        <div class="pkg-price-sub">por edição</div>
+        <ul class="pkg-features">
+          <li>Bloco de destaque no topo</li>
+          <li>Imagem + texto + CTA</li>
+          <li>Alcance de ~48.000 leitores</li>
+          <li>Menção nas redes sociais</li>
+          <li>Relatório detalhado</li>
+        </ul>
+        <button class="btn-neon" style="width:100%" onclick="showPage('contato')">Solicitar</button>
+      </div>
+      <div class="ad-pkg">
+        <div class="pkg-name">Patrocínio</div>
+        <div class="pkg-price">R$2.490</div>
+        <div class="pkg-price-sub">por mês</div>
+        <ul class="pkg-features">
+          <li>4 edições patrocinadas</li>
+          <li>Logo no cabeçalho</li>
+          <li>Conteúdo especial integrado</li>
+          <li>Posts nas redes sociais</li>
+          <li>Relatório mensal completo</li>
+          <li>Menção no podcast</li>
+        </ul>
+        <button class="btn-neon" style="width:100%" onclick="showPage('contato')">Solicitar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PRIVACIDADE ==================== -->
+<div id="page-privacidade" class="page">
+  <div class="subpage">
+    <div class="subpage-header">
+      <div class="section-label">Legal</div>
+      <h1 class="subpage-title">PRIVA<span>CIDADE</span></h1>
+    </div>
+    <div class="privacy-content">
+      <div class="info-box"><p>Última atualização: 1º de janeiro de 2026. Esta política se aplica a todos os usuários da newsletter RESPAWN.</p></div>
+      <h2>1. Dados que Coletamos</h2>
+      <p>Coletamos apenas o seu endereço de e-mail quando você se inscreve na newsletter. Não coletamos dados de localização, comportamento de navegação fora de nossos e-mails, ou qualquer informação pessoal adicional sem o seu consentimento explícito.</p>
+      <p>Em nossas edições, utilizamos pixels de rastreamento padrão que nos informam se o e-mail foi aberto e se houve cliques em links. Isso nos ajuda a entender o que nossos leitores gostam de ler.</p>
+      <h2>2. Como Usamos seus Dados</h2>
+      <ul>
+        <li>Envio da newsletter semanal RESPAWN</li>
+        <li>Comunicações ocasionais sobre o serviço</li>
+        <li>Análise de métricas de engajamento (abertura, cliques)</li>
+        <li>Nunca vendemos ou compartilhamos seus dados com terceiros para fins de marketing</li>
+      </ul>
+      <h2>3. Cancelamento</h2>
+      <p>Você pode cancelar sua assinatura a qualquer momento clicando no link "Cancelar inscrição" no rodapé de qualquer edição da newsletter. Após o cancelamento, seus dados serão removidos de nossa base em até 30 dias.</p>
+      <h2>4. Segurança</h2>
+      <p>Seus dados são armazenados em servidores seguros com criptografia TLS. Utilizamos plataformas de e-mail marketing certificadas e compatíveis com a LGPD (Lei Geral de Proteção de Dados).</p>
+      <h2>5. Seus Direitos (LGPD)</h2>
+      <p>De acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), você tem o direito de acessar, corrigir ou solicitar a exclusão de seus dados pessoais. Para exercer esses direitos, entre em contato pelo e-mail privacidade@respawnletter.com.br</p>
+      <h2>6. Contato</h2>
+      <p>Dúvidas sobre nossa política de privacidade? Fale conosco em <strong style="color:var(--neon)">privacidade@respawnletter.com.br</strong></p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== CONTATO ==================== -->
+<div id="page-contato" class="page">
+  <div class="subpage">
+    <div class="subpage-header">
+      <div class="section-label">Fale Conosco</div>
+      <h1 class="subpage-title">CON<span>TATO</span></h1>
+      <p class="subpage-desc">Sugestões de pauta, parcerias, publicidade ou só um oi — adoramos ouvir nossos leitores.</p>
+    </div>
+    <div class="contact-grid">
+      <div>
+        <div class="form-group"><label>Nome</label><input type="text" placeholder="Seu nome completo"></div>
+        <div class="form-group"><label>E-mail</label><input type="email" placeholder="seu@email.com"></div>
+        <div class="form-group"><label>Assunto</label>
+          <select style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:12px 16px;font-family:'Syne',sans-serif;font-size:14px;width:100%;outline:none">
+            <option value="">Selecione um assunto</option>
+            <option>Sugestão de pauta</option>
+            <option>Parceria / Publicidade</option>
+            <option>Erro ou correção</option>
+            <option>Dúvida sobre a newsletter</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Mensagem</label><textarea placeholder="Escreva sua mensagem aqui..."></textarea></div>
+        <button class="btn-neon" style="width:100%;padding:16px" onclick="this.textContent='✓ Enviado! Responderemos em breve.';this.style.background='var(--neon2)';setTimeout(()=>{this.textContent='Enviar Mensagem';this.style.background=''},3000)">Enviar Mensagem</button>
+      </div>
+      <div class="contact-info">
+        <h3>Informações</h3>
+        <div class="contact-info-item"><div class="contact-info-label">E-mail Geral</div><div class="contact-info-val">oi@respawnletter.com.br</div></div>
+        <div class="contact-info-item"><div class="contact-info-label">Publicidade</div><div class="contact-info-val">ads@respawnletter.com.br</div></div>
+        <div class="contact-info-item"><div class="contact-info-label">Imprensa</div><div class="contact-info-val">press@respawnletter.com.br</div></div>
+        <div class="contact-info-item"><div class="contact-info-label">Privacidade</div><div class="contact-info-val">privacidade@respawnletter.com.br</div></div>
+        <div class="contact-info-item"><div class="contact-info-label">Redes Sociais</div><div class="contact-info-val">@respawnletter em todas as plataformas</div></div>
+        <div class="contact-info-item"><div class="contact-info-label">Tempo de Resposta</div><div class="contact-info-val">Respondemos em até 2 dias úteis</div></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo">RESPAWN</div>
+  <div class="footer-logo" onclick="showPage('home')">RESPAWN</div>
   <ul class="footer-links">
-    <li><a href="#">Sobre</a></li>
-    <li><a href="#">Arquivo</a></li>
-    <li><a href="#">Anunciar</a></li>
-    <li><a href="#">Privacidade</a></li>
-    <li><a href="#">Contato</a></li>
+    <li><a onclick="showPage('sobre')">Sobre</a></li>
+    <li><a onclick="showPage('arquivo')">Arquivo</a></li>
+    <li><a onclick="showPage('anunciar')">Anunciar</a></li>
+    <li><a onclick="showPage('privacidade')">Privacidade</a></li>
+    <li><a onclick="showPage('contato')">Contato</a></li>
   </ul>
   <div class="footer-copy">© 2026 Respawn Newsletter · Feito no 🇧🇷</div>
 </footer>
 
 <script>
-  // Custom cursor
-  const cursor = document.getElementById('cursor');
-  const ring = document.getElementById('cursorRing');
-  let mx = 0, my = 0, rx = 0, ry = 0;
-
-  document.addEventListener('mousemove', e => {
-    mx = e.clientX; my = e.clientY;
-    cursor.style.left = mx - 6 + 'px';
-    cursor.style.top = my - 6 + 'px';
-  });
-
-  function animateRing() {
-    rx += (mx - rx - 18) * 0.12;
-    ry += (my - ry - 18) * 0.12;
-    ring.style.left = rx + 'px';
-    ring.style.top = ry + 'px';
-    requestAnimationFrame(animateRing);
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById('page-' + id);
+    if (target) { target.classList.add('active'); window.scrollTo(0,0); }
+    document.querySelectorAll('[data-page]').forEach(a => {
+      a.classList.toggle('active-link', a.dataset.page === id);
+    });
+    // Re-trigger reveals
+    setTimeout(() => {
+      document.querySelectorAll('.reveal').forEach(el => {
+        if (!el.classList.contains('visible')) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top < window.innerHeight) el.classList.add('visible');
+        }
+      });
+    }, 50);
   }
-  animateRing();
 
-  document.querySelectorAll('a, button, .card, .news-card, .review-card, .match-card').forEach(el => {
-    el.addEventListener('mouseenter', () => {
-      cursor.style.transform = 'scale(2)';
-      ring.style.transform = 'scale(1.5)';
-      ring.style.opacity = '0.8';
-    });
-    el.addEventListener('mouseleave', () => {
-      cursor.style.transform = 'scale(1)';
-      ring.style.transform = 'scale(1)';
-      ring.style.opacity = '0.5';
-    });
-  });
+  function toggleMobile() {
+    document.getElementById('navMobile').classList.toggle('open');
+  }
+
+  function subscribe(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (input && input.value && input.value.includes('@')) {
+      btn.textContent = '✓ Inscrito!';
+      btn.style.background = 'var(--neon2)';
+      input.value = '';
+      setTimeout(() => { btn.textContent = btn.textContent; btn.style.background = ''; }, 3000);
+    } else if (input) {
+      input.style.borderColor = 'var(--fire)';
+      setTimeout(() => input.style.borderColor = '', 1500);
+    }
+  }
 
   // Scroll reveal
-  const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.classList.add('visible');
-      }
-    });
-  }, { threshold: 0.1 });
-  reveals.forEach(r => observer.observe(r));
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(r => observer.observe(r));
 
-  // Score bar animation
-  const scoreObserver = new IntersectionObserver(entries => {
+  // Score bars
+  const scoreObs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (e.isIntersecting) {
         const fill = e.target.querySelector('.score-fill');
-        if (fill) {
-          const w = fill.style.width;
-          fill.style.width = '0';
-          setTimeout(() => fill.style.width = w, 100);
-        }
+        if (fill) { const w = fill.style.width; fill.style.width = '0'; setTimeout(() => fill.style.width = w, 100); }
       }
     });
   }, { threshold: 0.5 });
-  document.querySelectorAll('.review-card').forEach(c => scoreObserver.observe(c));
-
-  // Subscribe buttons
-  document.querySelectorAll('button').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const input = this.previousElementSibling;
-      if (input && input.type === 'email') {
-        if (input.value && input.value.includes('@')) {
-          this.textContent = '✓ Inscrito!';
-          this.style.background = 'var(--neon2)';
-          input.value = '';
-          setTimeout(() => {
-            this.textContent = this.textContent.includes('Agora') ? 'Assinar Agora' : 'Quero Receber';
-            this.style.background = '';
-          }, 3000);
-        } else {
-          input.style.borderColor = 'var(--fire)';
-          setTimeout(() => input.style.borderColor = '', 1500);
-        }
-      }
-    });
-  });
+  document.querySelectorAll('.review-card').forEach(c => scoreObs.observe(c));
 </script>
 </body>
 </html>
